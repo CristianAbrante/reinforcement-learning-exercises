@@ -52,13 +52,13 @@
 ELEC-E8125 - Reinforcement Learning}
 
 \maketitle
-\section{Task 1}
+\section{Reward functions}
 \label{sec:task-1}
 
-\subsection{Question 1.1}
+\subsection{Task 1}
 \label{sec:question-1.1}
 \textbf {
-    Can the same model, trained to balance for 200 timesteps, also balance the pole for 500 timesteps? Briefily justify your answers.
+    Train a model with 200 time steps per episode. Then test the model for 500 time steps.
 }\\
 
 For answering this question, first of all the model had to be trained during 500 episodes with a maximum 200 time steps per episode. After the agent is trained with those parameters a plot was generated in order to know the performance of the agent over the episodes:
@@ -77,6 +77,18 @@ After having trained the model, it was tested with maximum 500 time steps per ep
 \begin{center}
     \texttt{Average test reward: 161.644 episode length: 161.644}
 \end{center}
+
+As we can see in this case, the agent did not generalized well, having an average test performance even worst than the parameter established for training which was 200 time steps.
+
+\subsection{Question 1.1}
+\label{sec:question-1.1}
+\textbf {
+    Can the same model, trained to balance for 200 timesteps, also balance the pole for 500 timesteps? Briefily justify your answers.
+}\\
+
+The general answer to this question would be: yes it can. First of all, when the number of maximum time steps is increased, the main change is that the evaluation of the environment (in this case performed by \texttt{gym} using \texttt{env.step()}), is not going to consider the episode finalized (setting the \texttt{done} boolean variable to \texttt{true}), until the execution reaches 500 steps, or the pole falls.\\
+
+So, as we previously trained the agent to balance the pole for 200 time steps, theoretically it could continue doing it for more steps if it have generalized well during the training period. In practise, that is not happening in all the cases, mainly due to two reasons: On the one hand, the model is trained with 500 episodes, which could maybe not be enough for the generalization task, we can see that in Figure \ref{fig:training-200} where the variance between the average reward and some executions is really important. On the other hand, we have the maximum 200 train steps, which maybe is not enough too, we can see that also in the result of the test with 500 steps, which had as a result an average reward of 161.644. This result was even less than the 200 steps with which it was trained. 
 
 
 \section{Task 2}
