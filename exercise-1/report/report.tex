@@ -47,13 +47,37 @@
  
 \begin{document}
  
-\title{Exercise X}
+\title{Exercise 1}
 \author{Cristian Manuel Abrante Dorta - 888248\\
 ELEC-E8125 - Reinforcement Learning}
 
 \maketitle
 \section{Task 1}
-To cite works, put them in the template.bib file and use~\cite{sutton2018reinforcement}.
+\label{sec:task-1}
+
+\subsection{Question 1.1}
+\label{sec:question-1.1}
+\textbf {
+    Can the same model, trained to balance for 200 timesteps, also balance the pole for 500 timesteps? Briefily justify your answers.
+}\\
+
+For answering this question, first of all the model had to be trained during 500 episodes with a maximum 200 time steps per episode. After the agent is trained with those parameters a plot was generated in order to know the performance of the agent over the episodes:
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[scale=0.5]{exercise-1/report/img/task-1-training-200.png}
+    \caption{Training result with 500 episodes and 200 max time steps per episode.}
+    \label{fig:training-200}
+\end{figure}
+
+It is important to know that this is not a deterministic process, and that implies that the content of this plot is not the only possible training that the agent could have. But, as we can see in figure \ref{fig:training-200} the cumulative reward (equivalent to the maximum number of time steps that the pole was balanced), is increasing over the training episodes. Obtaining the maximum reward in some intervals between episodes 100 and 400. Also, the average reward have an increasing tendency over all the episodes except from the final 100 episodes. \\
+
+After having trained the model, it was tested with maximum 500 time steps per episode, and the obtained result was:
+
+\begin{center}
+    \texttt{Average test reward: 161.644 episode length: 161.644}
+\end{center}
+
 
 \section{Task 2}
 To embed code snippets in the report, you can use the \texttt{pycode} environment.
