@@ -19,6 +19,8 @@ def parse_args(args=sys.argv[1:]):
                         help="Environment to use")
     parser.add_argument("--train_episodes", type=int, default=500,
                         help="Number of episodes to train for")
+    parser.add_argument("--max_time_steps", "--s", type=int, default=200,
+                        help="Max number of episode steps.")
     parser.add_argument("--render_training", action='store_true',
                         help="Render each frame during training. Will be slower.")
     parser.add_argument("--render_test", action='store_true', help="Render test")
@@ -126,8 +128,7 @@ def main(args):
     env = gym.make(args.env)
 
     # Exercise 1
-    # TODO: For CartPole-v0 - maximum episode length
-    env._max_episode_steps = 200
+    env._max_episode_steps = args.max_time_steps
 
     # Get dimensionalities of actions and observations
     action_space_dim = get_space_dim(env.action_space)
@@ -172,4 +173,3 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
-

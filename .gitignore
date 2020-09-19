@@ -1,6 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,linux,pycharm+all
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,linux,pycharm+all
 
+### Project specific ###
+
+*.ai
+
 ### Linux ###
 *~
 
