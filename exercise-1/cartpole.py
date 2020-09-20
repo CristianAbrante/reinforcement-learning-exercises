@@ -24,12 +24,16 @@ def parse_args(args=sys.argv[1:]):
     parser.add_argument("--render_training", action='store_true',
                         help="Render each frame during training. Will be slower.")
     parser.add_argument("--render_test", action='store_true', help="Render test")
+    parser.add_argument("--reward_function", type=str, default="basic",
+                        help="reward function to be used")
+    parser.add_argument("--center_point", type=int, default=0,
+                        help="point where you want to center the pole.")
     return parser.parse_args(args)
 
 
 # Policy training function
-def train(agent, env, train_episodes, early_stop=True, render=False,
-          silent=False, train_run_id=0):
+def train(agent, env, train_episodes, args,
+          early_stop=True, render=False, silent=False, train_run_id=0):
     # Arrays to keep track of rewards
     reward_history, timestep_history = [], []
     average_reward_history = []
@@ -51,7 +55,7 @@ def train(agent, env, train_episodes, early_stop=True, render=False,
             observation, reward, done, info = env.step(action)
 
             # TODO: Task 1 - change the reward function
-            # reward = new_reward(observation)
+            reward = new_reward(observation, args)
 
             # Store action's outcome (so that the agent can improve its policy)
             agent.store_outcome(previous_observation, action_probabilities, action, reward)
@@ -89,16 +93,17 @@ def train(agent, env, train_episodes, early_stop=True, render=False,
 
     # Store the data in a Pandas dataframe for easy visualization
     data = pd.DataFrame({"episode": np.arange(len(reward_history)),
-                         "train_run_id": [train_run_id]*len(reward_history),
+                         "train_run_id": [train_run_id] * len(reward_history),
                          "reward": reward_history,
                          "mean_reward": average_reward_history})
     return data
 
 
 # Function to test a trained policy
-def test(agent, env, episodes, render=False):
+def test(agent, env, episodes, args, render=False):
     test_reward, test_len = 0, 0
     for ep in range(episodes):
+        timesteps = 0
         done = False
         observation = env.reset()
         while not done:
@@ -109,17 +114,47 @@ def test(agent, env, episodes, render=False):
             action, _ = agent.get_action(observation, evaluation=True)
             observation, reward, done, info = env.step(action)
             # TODO: New reward function
-            # reward = new_reward(observation)
+            reward = new_reward(observation, args)
+            print("r -> ", np.round(reward, 3), " x -> ", np.round(observation[0], 3))
             if render:
                 env.render()
             test_reward += reward
             test_len += 1
-    print("Average test reward:", test_reward/episodes, "episode length:", test_len/episodes)
+            timesteps += 1
+        print("done -> ", timesteps)
+    print("Average test reward:", test_reward / episodes, "episode length:", test_len / episodes)
 
 
-# TODO: Definition of the modified reward function
-def new_reward(state):
-    return 1
+def new_reward(state, args):
+    if args.reward_function == "centered":
+        return test_reward(state, args.center_point)
+    elif args.reward_function == "balanced":
+        return 1.0
+    else:
+        return 1.0
+
+
+lower_bound = -1.5
+higher_bound = +1.5
+eps = 0.1
+max_reward = 0.75
+
+
+# This function calculates the reward based on how close it is
+# the point to the point given as a parameter.
+def test_reward(state, x0):
+    x = state[0]
+
+    if (x0 - eps) <= x <= (x0 + eps):
+        return 1
+    elif lower_bound <= x < (x0 - eps):
+        denominator = x0 - eps - lower_bound
+        return (max_reward / denominator) * x - ((max_reward * lower_bound) / denominator)
+    elif (x0 + eps) < x <= higher_bound:
+        denominator = higher_bound - (x0 + eps)
+        return (-max_reward / denominator) * x + ((max_reward * higher_bound) / denominator)
+    else:
+        return 0
 
 
 # The main function
@@ -147,7 +182,7 @@ def main(args):
     # If no model was passed, train a policy from scratch.
     # Otherwise load the policy from the file and go directly to testing.
     if args.test is None:
-        training_history = train(agent, env, args.train_episodes, False, args.render_training)
+        training_history = train(agent, env, args.train_episodes, args, False, args.render_training)
 
         # Save the model
         model_file = "%s_params.ai" % args.env
@@ -166,7 +201,7 @@ def main(args):
         state_dict = torch.load(args.test)
         policy.load_state_dict(state_dict)
         print("Testing...")
-        test(agent, env, args.train_episodes, args.render_test)
+        test(agent, env, args.train_episodes, args, args.render_test)
 
 
 # Entry point of the script
