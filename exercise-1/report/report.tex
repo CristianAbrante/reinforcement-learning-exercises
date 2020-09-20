@@ -182,9 +182,31 @@ If we evaluate the performance in the graphic mode, we can do different observat
    \end{minipage}
 \end{figure}
 
+\section{Repeatibility}
+\label{sec:repeatibility}
 
-\section{Task 2}
-To embed code snippets in the report, you can use the \texttt{pycode} environment.
+\subsection{Question 2}
+\label{sec:question-2}
+\textbf {
+    Why is this the case? What are the implications of this stochasticity, when it comes to comparing reinforcement learning algorithms to each other? Please explain.
+}\\
+
+In contrast to what happens in supervised methods of machine learning, in reinforcement learning the inputs that the intelligent system received are previously unknown, having only the capacity of observing some inputs that are initialized randomly and that are changed based on the effect that the actions taken by the agent produce. \\
+
+\begin{figure}[H]
+	\centering  
+    \includegraphics[width=0.6\columnwidth]{img/training.pdf}
+	\caption{Execution of 100 independent trainings.}
+	\label{question-2:fig}
+\end{figure}
+
+
+We can observe in figure \ref{question-2:fig} that even though there are many executions, the variety of the rewards obtained by different agents in those executions differ in a significant way between them. This is caused by the quantity of randomness that is present in the environment, not only with the initialization but also in how the model behaves (intelligent systems based on neural networks introduce an inevitable amount of randomness).\\
+
+Having an agent trained in such as random environment inevitably creates difficulties for them in generalizing the underlying pattern, so the only way to evaluate the performance of those systems is the reward function, which varies drastically in different episodes. \\
+
+As it was stated in \cite{nagendra2017comparison}, when we want to compare different reinforcement learning algorithms, it is difficult to know exactly which is going to be the convergence point, where we could distinguish which noise is produced by the environment and which is produced by the results of the algorithm.
+
 
 \begin{pycode}
 for episode_number in range(train_episodes):
@@ -214,12 +236,6 @@ for episode_number in range(train_episodes):
 
 If you add a figure, you can refer to it using Figure.~\ref*{fig:fig1}.
 
-\begin{figure}[h] 
-	\centering  % Remember to centre the figure
-    \includegraphics[width=0.9\columnwidth]{img/training.pdf}
-	\caption{This is a sample figure.}
-	\label{fig:fig1}
-\end{figure}
 
 \bibliographystyle{ieeetr}
 \bibliography{template}  % Modify template with your bibliography name
