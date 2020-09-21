@@ -54,8 +54,7 @@ def train(agent, env, train_episodes, args,
             # Perform the action on the environment, get new state and reward
             observation, reward, done, info = env.step(action)
 
-            # TODO: Task 1 - change the reward function
-            reward = new_reward(observation, args)
+            reward = new_reward(observation, args, timesteps)
 
             # Store action's outcome (so that the agent can improve its policy)
             agent.store_outcome(previous_observation, action_probabilities, action, reward)
@@ -102,10 +101,18 @@ def train(agent, env, train_episodes, args,
 # Function to test a trained policy
 def test(agent, env, episodes, args, render=False):
     test_reward, test_len = 0, 0
+    # Arrays to keep track of velocity
+    velocity_history, timesteps_history = [], []
+    max_velocity = -5  # Default value
+    max_velocity_index = -1
+    i = 0
+
     for ep in range(episodes):
         timesteps = 0
         done = False
         observation = env.reset()
+        velocity_history.append([])
+        timesteps_history.append([])
         while not done:
             # Similar to the training loop above -
             # get the action, act on the environment, save total reward
@@ -113,38 +120,49 @@ def test(agent, env, episodes, args, render=False):
             # the best action - there is no exploration at this point)
             action, _ = agent.get_action(observation, evaluation=True)
             observation, reward, done, info = env.step(action)
-            # TODO: New reward function
-            reward = new_reward(observation, args)
+
+            reward = new_reward(observation, args, timesteps)
             print("r -> ", np.round(reward, 3), " x -> ", np.round(observation[0], 3))
+
             if render:
                 env.render()
+
+            velocity = observation[-1]
+            velocity_history[-1].append(velocity)
+            if max_velocity == -5 or velocity > max_velocity:
+                max_velocity = velocity
+                max_velocity_index = ep
+
+            timesteps += 1
+            timesteps_history[-1].append(timesteps)
             test_reward += reward
             test_len += 1
-            timesteps += 1
+
         print("done -> ", timesteps)
+
     print("Average test reward:", test_reward / episodes, "episode length:", test_len / episodes)
+    data = pd.DataFrame({"timestep": timesteps_history[max_velocity_index],
+                         "velocity": velocity_history[max_velocity_index]})
+
+    # Plot max velocity
+    sns.lineplot(x="timestep", y="velocity", data=data)
+    plt.legend(["Velocity"])
+    plt.title("Max velocity (episode %d)" % max_velocity_index)
+    plt.show()
+    print("Max velocity: ", max_velocity)
+    print("Training finished.")
 
 
-def new_reward(state, args):
+def new_reward(state, args, timesteps):
     if args.reward_function == "centered":
-        return test_reward(state, args.center_point)
+        return centered_reward(state, args.center_point)
     elif args.reward_function == "balanced":
-        return 1.0
+        return balanced_reward(state, timesteps)
     else:
         return 1.0
 
 
-lower_bound = -1.5
-higher_bound = +1.5
-eps = 0.1
-max_reward = 0.75
-
-
-# This function calculates the reward based on how close it is
-# the point to the point given as a parameter.
-def test_reward(state, x0):
-    x = state[0]
-
+def proportional_reward(x, x0=0, eps=0.1, max_reward=1.0, lower_bound=-1.0, higher_bound=+1.0):
     if (x0 - eps) <= x <= (x0 + eps):
         return 1
     elif lower_bound <= x < (x0 - eps):
@@ -155,6 +173,26 @@ def test_reward(state, x0):
         return (-max_reward / denominator) * x + ((max_reward * higher_bound) / denominator)
     else:
         return 0
+
+
+# This function calculates the reward based on how close it is
+# the point to the point given as a parameter.
+def centered_reward(state, x0):
+    lower_bound = -1.5
+    higher_bound = +1.5
+    eps = 0.1
+    max_reward = 0.75
+
+    return proportional_reward(state[0], x0, eps, max_reward, lower_bound, higher_bound)
+
+
+def balanced_reward(state, timesteps):
+    period = 5
+    eps = 0.05
+    max_reward = 0.75
+
+    v_ideal = np.sin((2 * np.pi / period) * timesteps)
+    return proportional_reward(state[1], v_ideal, eps, max_reward)
 
 
 # The main function
