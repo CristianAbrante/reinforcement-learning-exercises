@@ -208,33 +208,176 @@ Having an agent trained in such as random environment inevitably creates difficu
 As it was stated in \cite{nagendra2017comparison}, when we want to compare different reinforcement learning algorithms, it is difficult to know exactly which is going to be the convergence point, where we could distinguish which noise is produced by the environment and which is produced by the results of the algorithm.
 
 
+\section{Reward functions}
+\label{sec:reward-functions}
+
+\subsection{Task 2}
+\label{sec:reward-task-2}
+\textbf {
+    Write different reward functions to incentive the agent to learn the following behaviors:
+}\\
+
+\subsubsection{Balance the pole close to the center of the screen (close to $x = 0$)}
+\label{sec:center}
+
+Solving this question is equivalent to solve what is asked in section \ref{sec:center-point}, but for the specific case of $x=0$. For doing that, we have to design the reward function that could guide the position of the agent to the desired point. For doing that the approach followed could be better described with this diagram:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.6]{exercise-1/report/img/diagrams/reward-diagram.png}
+    \caption{Diagram of the reward given the position}
+    \label{fig:reward}
+\end{figure}
+
+This diagram express the model that the reward will follow. When the actual position of the pole is in the interval specified between the desired point ($x_0$), and a threshold (denominated as $\epsilon$), we are going to return the maximum possible reward ($+1$). Then, when the position is in the interval between the lower bound and the beginning of the central interval, or between the end of the central interval and the upper bound, the reward is going to be obtained from the liner function proportionally specified between $0$ in the bounds and $0.75$ in the beginning of the central interval. \\
+
+Calculating the equations of those intervals is easy, because they are simply the equation of the straight line that connects two different points, different from each interval (left and right). Those are the following equations:
+
+\begin{minipage}{0.48\textwidth}
+ \begin{center}
+    \begin{equation}
+         r = \frac{r_{max} \cdot (x - l)}{x_0-\epsilon-l}
+    \end{equation}
+ \end{center}
+\end{minipage}\hfill
+\begin{minipage}{0.48\textwidth}
+\begin{center}
+    \begin{equation}
+        r = \frac{r_{max} \cdot (-x + h)}{h-(x_0 - \epsilon)}
+    \end{equation}
+ \end{center}
+\end{minipage}
+\\
+
+It is important to mention that the parameter $r_{max}$ is the maximum reward obtained in the bounds of the central interval, in our case, this value was set to $r_{max} = 0.75$. Also, the value of $\epsilon$ established was $\epsilon=0.1$\\
+
+This equations, should be translated to code, for this purpose, the following function was created:
+
 \begin{pycode}
-for episode_number in range(train_episodes):
-    reward_sum, timesteps = 0, 0
-    done = False
-    # Reset the environment and observe the initial state
-    observation = env.reset()
+lower_bound = -1.5
+higher_bound = +1.5
+eps = 0.1
+max_reward = 0.75
 
-    # Loop until the episode is over
-    while not done:
-        # Get action from the agent
-        action, action_probabilities = agent.get_action(observation)
-        previous_observation = observation
+def proportional_reward(state, x0):
+    x = state[0]
 
-        # Perform the action on the environment, get new state and reward
-        observation, reward, done, info = env.step(action)
-
-        # Store action's outcome (so that the agent can improve its policy)
-        agent.store_outcome(previous_observation, action_probabilities, action, reward)
-
-        # Draw the frame, if desired
-        if render:
-            env.render()
+    if (x0 - eps) <= x <= (x0 + eps):
+        return 1
+    elif lower_bound <= x < (x0 - eps):
+        denominator = x0 - eps - lower_bound
+        return (max_reward / denominator) * x - ((max_reward * lower_bound) / denominator)
+    elif (x0 + eps) < x <= higher_bound:
+        denominator = higher_bound - (x0 + eps)
+        return (-max_reward / denominator) * x + ((max_reward * higher_bound) / denominator)
+    else:
+        return 0
 \end{pycode}
 
-\section{Question 1}
+After have explained how the reward function was designed, we have to analyze the case of $x_0 = 0$, which is equivalent to center the pole in the screen. The training of this model was done using 500 timesteps in 1000 episodes, obtaining the following plot of the rewards:
 
-If you add a figure, you can refer to it using Figure.~\ref*{fig:fig1}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.45]{exercise-1/report/img/rewards/center-0-500t-1000e-proportion.png}
+    \caption{Reward function of the centering}
+    \label{fig:rewards-1}
+\end{figure}
+
+The correspondent model obtained in this execution is \texttt{center-0-500t-1000e-proportional.ai}.
+
+\subsubsection{Balance the pole in an arbitrary point of the screen ($x = x_0$), with $x_0$ passed as a command line argument
+to the script.}
+\label{sec:center-point}
+
+The function designed for this question was already explained in section \ref{sec:center}. In this case, two different models were trained, the first one for center the model in $x = -1$ and the other for centering the model in $x=+1$. As in the previous section, both models were trained with 500 timesteps and 1000 episodes, obtaining the following plots of the rewards:
+
+\begin{figure}[ht]
+    \centering
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.7\linewidth]{exercise-1/report/img/rewards/center--1-500t-1000e-proportional.png}
+     \caption{Reward plot for the model when $x=-1$}
+     \label{fig:reard-1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.7\linewidth]{exercise-1/report/img/rewards/center-1-500t-1000e.png}
+     \caption{Reward plot for the model when $x=+1$}
+     \label{fig:task-2-right}
+   \end{minipage}
+\end{figure}
+
+As we can see, in both graphs, the average reward increases over time, following a period of stabilization in the final episodes of the training. The corresponding model files are: \texttt{center--1-500t-1000e-proportional.ai} and \texttt{center-+1-500t-1000e-proportional.ai}.
+
+\subsubsection{Keep the cart moving from the leftmost to rightmost side of the track as fast as possible, while still
+balancing the pole.}
+\label{sec:balance}
+
+The proposed solution to this reward function is inspired in the wave equation. The idea is that the velocity of the pole follows the trajectory described by the $sin$ function. In this wave function, the amplitude is by default $1$, so the objective is that given the timestamp, the function will perform which is the desired velocity. The equation is the following:
+
+\begin{equation}
+    v^* = sin(\frac{2\pi}{T}t)
+\end{equation}
+
+
+For achieving this, the following python function was elaborated:
+
+\begin{pycode}
+def balanced_reward(state, timesteps):
+    period = 5
+    eps = 0.05
+    max_reward = 0.75
+
+    v_ideal = np.sin((2 * np.pi / period) * timesteps)
+    return proportional_reward(state[1], v_ideal, eps, max_reward)
+\end{pycode}
+
+This function calculates the ideal velocity that the pole should have in each time step and then compares the actual velocity following the equation described in section \ref{sec:center}. After training the model with 500 timesteps and 500 episodes, this is the obtained plot of the rewards: \\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.4]{exercise-1/report/img/rewards/balance-500t-500e.png}
+    \caption{Plot of the rewards after 500 episoes of training}
+    \label{fig:my_label}
+\end{figure}
+
+The graph shows a significant improvement in the reward obtained along the episodes, achieving an almost constant lines in the final episodes. The corresponding model of this function is \texttt{balanced-500t-500e.ai}.
+
+\subsection{Task 3}
+\label{sec:task-3-reward-viz}
+\textbf {
+    Let us visualize the third reward function
+}\\
+
+The execution of 10 parallel runs of the cart pole balance problem, shows this graph:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.5]{exercise-1/report/img/rewards/Figure_1-multiple.png}
+    \caption{10 executions with the reward function described in section \ref{sec:balance}}
+    \label{fig:my_label}
+\end{figure}
+
+This plot shows also the problem of the high variance between different executions of the problem, but we can also observe than in the final phases of the training the variance is becoming less and the reward function is starting to stabilize, this is because the agent is learning the underlying pattern and maximizing the reward.
+
+\subsection{Question 3}
+\label{sec:question-3}
+\textbf {
+    What do you observe? What is the highest velocity the agent reaches?
+}\\
+
+When observing the execution of the cart pole with the third reward function, we can obtain different conclusions. First of all, the velocity of the pole is not adequate, because it goes slow and is not able to finish a complete oscillation in the 500 timestamps used for test. This happens because during the training phase, the agent learns how to maintain an average velocity in order to prevent the pole from falling. \\
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.45]{exercise-1/report/img/rewards/velocity-1.png}
+    \caption{Velocity diagram of the execution when the highest velocity was reached}
+    \label{fig:velocity}
+\end{figure}
+
+This could be seen if we observe the velocity plot (Figure \ref{fig:velocity}) obtained in the episode when the maximum velocity is reached (\textbb{0.410}), in the episode 309 of the test. It shows that the velocity is approximately varying between $-0.2$ and $+0.2$, which indicates that the agent is always more or less following the same velocity, and do not \textit{risk} in increasing it. \\
+
+We can conclude that the third reward function is not enough good, because even if it perform correctly the task, it does not do it in the desired velocity, and also it possibly uses unnecessary information for the calculation such as the timestamp of the current episode. 
 
 
 \bibliographystyle{ieeetr}
