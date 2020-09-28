@@ -12,7 +12,7 @@ from sailing import SailingGridworld
 epsilon = 10e-4  # TODO: Use this criteria for Task 3
 
 # Set up the environment
-env = SailingGridworld(rock_penalty=-10)
+env = SailingGridworld(rock_penalty=-2)
 value_est = np.zeros((env.w, env.h))
 env.draw_values(value_est)
 
@@ -54,12 +54,44 @@ def value_iteration(env, gamma, termination_condition):
     return value_est, policy
 
 
-def convergence_criteria(current_val, prev_val, _, current_iteration):
+def convergence_criteria(current_val, prev_val, _, current_iteration, log_results=True):
     max_change = np.max(np.abs(np.subtract(current_val, prev_val)))
     converged = max_change < epsilon
-    if converged:
+    if converged and log_results:
         print(f'algorithm converged at iteration {current_iteration}')
     return converged
+
+
+def number_of_executions_convergence(max_number_of_executions, current_val, prev_val, _, current_iteration):
+    reached_max = current_iteration >= max_number_of_executions
+
+    if (reached_max):
+        converged = convergence_criteria(current_val, prev_val, _, current_iteration, log_results=False)
+        print(f"With max of {max_number_of_executions} the algorithm {converged}")
+
+    return reached_max
+
+
+def discount_return(env, policy, max_iterations, gamma):
+    discounts = np.array([])
+    for _ in range(max_iterations):
+        done = False
+        iter = 0
+        G = 0
+        env.reset()
+        while not done:
+            # Select a random action
+            action = policy[env.state[0], env.state[1]]
+
+            # Step the environment
+            state, reward, done, _ = env.step(action)
+
+            G += reward * np.power(gamma, iter)
+            iter += 1
+            if done:
+                discounts = np.append(discounts, G)
+
+    return discounts
 
 
 if __name__ == "__main__":
@@ -79,6 +111,16 @@ if __name__ == "__main__":
     env.save_figure("report/img/final-board-with-policy-2.png")
     sleep(1)
 
+    # question 4
+    number_of_executions = [10, 25, 50, 75, 80]
+
+    for execution in number_of_executions:
+        evaluator = lambda current_val, prev_val, _, current_iteration: number_of_executions_convergence(execution,
+                                                                                                         current_val,
+                                                                                                         prev_val, _,
+                                                                                                         current_iteration)
+        value_est, policy = value_iteration(env, gamma, evaluator)
+
     # Task 3
     value_est, policy = value_iteration(env, gamma, convergence_criteria)
 
@@ -89,22 +131,28 @@ if __name__ == "__main__":
     env.save_figure("report/img/final-board-with-threshold.png")
     sleep(1)
 
+    # Task 4
+    discounts = discount_return(env, policy, max_iterations=1000, gamma=gamma)
+
+    print(f"mean of Gs -> {np.mean(discounts)}")
+    print(f"Std of Gs -> {np.std(discounts)}")
+
     # Save the state values and the policy
     # fnames = "values.npy", "policy.npy"
-    # np.save(fnames[0], value_est)
-    # np.save(fnames[1], policy)
-    # print("Saved state values and policy to", *fnames)
+    np.save(fnames[0], value_est)
+    np.save(fnames[1], policy)
+    print("Saved state values and policy to", *fnames)
     #
     # # Run a single episode
     # # TODO: Run multiple episodes and compute the discounted returns (Task 4)
-    # done = False
-    # while not done:
-    #     # Select a random action
-    #     action = policy[env.state[0], env.state[1]]
-    #
-    #     # Step the environment
-    #     state, reward, done, _ = env.step(action)
-    #
-    #     # Render and sleep
-    #     env.render()
-    #     sleep(0.05)
+    done = False
+    while not done:
+        # Select a random action
+        action = policy[env.state[0], env.state[1]]
+
+        # Step the environment
+        state, reward, done, _ = env.step(action)
+
+        # Render and sleep
+        env.render()
+        sleep(0.05)
