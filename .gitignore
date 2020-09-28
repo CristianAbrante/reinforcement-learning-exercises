@@ -5,6 +5,7 @@
 
 *.ai
 *.pkl
+*.npy
 
 ### Linux ###
 *~

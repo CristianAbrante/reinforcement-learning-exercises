@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle, Polygon
 
 
+
 class SailingGridworld(object):
     NO_ACTIONS = 4
     LEFT, DOWN, RIGHT, UP = range(NO_ACTIONS)
@@ -29,14 +30,15 @@ class SailingGridworld(object):
         self.wind_p = wind_p
         self.w = 15
         self.h = 10
+        self.frame_counter = 0
         self.wrong_action_prob = 0.05
         self.maximized = False
 
         self.user_policy = None
         self.user_value_func = None
 
-        self.harbour_x = self.w - 1
-        self.harbour_y = self.h - 1
+        self.harbour_x = self.w-1
+        self.harbour_y = self.h-1
         self.init_x = 1
         self.init_y = 8
 
@@ -82,15 +84,15 @@ class SailingGridworld(object):
         desired_right = self._get_neighbouring_state(desired_state, self.RIGHT)
 
         transitions = [self.Transition(desired_state, self.rewards[desired_state[0], desired_state[1]],
-                                       self.terminate[desired_state[0], desired_state[1]], 1 - 4 * self.wind_p),
+                        self.terminate[desired_state[0], desired_state[1]], 1-4*self.wind_p),
                        self.Transition(desired_up, self.rewards[desired_up[0], desired_up[1]],
-                                       self.terminate[desired_up[0], desired_up[1]], self.wind_p),
+                        self.terminate[desired_up[0], desired_up[1]], self.wind_p),
                        self.Transition(desired_down, self.rewards[desired_down[0], desired_down[1]],
-                                       self.terminate[desired_down[0], desired_down[1]], self.wind_p),
+                        self.terminate[desired_down[0], desired_down[1]], self.wind_p),
                        self.Transition(desired_left, self.rewards[desired_left[0], desired_left[1]],
-                                       self.terminate[desired_left[0], desired_left[1]], self.wind_p),
+                        self.terminate[desired_left[0], desired_left[1]], self.wind_p),
                        self.Transition(desired_right, self.rewards[desired_right[0], desired_right[1]],
-                                       self.terminate[desired_right[0], desired_right[1]], self.wind_p)]
+                        self.terminate[desired_right[0], desired_right[1]], self.wind_p)]
 
         return transitions
 
@@ -116,41 +118,40 @@ class SailingGridworld(object):
         # Fill with blue
         bg = Rectangle((0, 0), 1, 1, facecolor="#75daff")
         self.ax.add_patch(bg)
-        rocks1 = Rectangle((self.rocks1_x[0] / self.w, self.rocks1_y[0] / self.h),
-                           (self.rocks1_x[1] - self.rocks1_x[0]) / self.w,
-                           (self.rocks1_y[1] - self.rocks1_y[0]) / self.h, facecolor="#c1c1c0")
+        rocks1 = Rectangle((self.rocks1_x[0]/self.w, self.rocks1_y[0]/self.h),
+                           (self.rocks1_x[1]-self.rocks1_x[0])/self.w,
+                           (self.rocks1_y[1]-self.rocks1_y[0])/self.h, facecolor="#c1c1c0")
         self.ax.add_patch(rocks1)
-        rocks2 = Rectangle((self.rocks2_x[0] / self.w, self.rocks2_y[0] / self.h),
-                           (self.rocks2_x[1] - self.rocks2_x[0]) / self.w,
-                           (self.rocks2_y[1] - self.rocks2_y[0]) / self.h, facecolor="#c1c1c0")
+        rocks2 = Rectangle((self.rocks2_x[0]/self.w, self.rocks2_y[0]/self.h),
+                           (self.rocks2_x[1]-self.rocks2_x[0])/self.w,
+                           (self.rocks2_y[1]-self.rocks2_y[0])/self.h, facecolor="#c1c1c0")
         self.ax.add_patch(rocks2)
-        wind = Rectangle((self.wind_x[0] / self.w, self.wind_y[0] / self.h),
-                         (self.wind_x[1] - self.wind_x[0]) / self.w,
-                         (self.wind_y[1] - self.wind_y[0]) / self.h, facecolor="#0F97CA")
+        wind = Rectangle((self.wind_x[0]/self.w, self.wind_y[0]/self.h),
+                           (self.wind_x[1]-self.wind_x[0])/self.w,
+                           (self.wind_y[1]-self.wind_y[0])/self.h, facecolor="#0F97CA")
         self.ax.add_patch(wind)
-        harbour = Rectangle((self.harbour_x / self.w, self.harbour_y / self.h),
-                            1 / self.w, 1 / self.h, facecolor="#7AE266")
+        harbour = Rectangle((self.harbour_x/self.w, self.harbour_y/self.h),
+                            1/self.w, 1/self.h, facecolor="#7AE266")
         self.ax.add_patch(harbour)
 
         if self.state is not None:
-            boat_x = np.array([0.1, 0.9, 0.7, 0.3]) / self.w + self.state[0] / self.w
-            boat_y = np.array([0.6, 0.6, 0.3, 0.3]) / self.h + self.state[1] / self.h
+            boat_x = np.array([0.1, 0.9, 0.7, 0.3])/self.w + self.state[0]/self.w
+            boat_y = np.array([0.6, 0.6, 0.3, 0.3])/self.h + self.state[1]/self.h
             boat = Polygon(xy=list(zip(boat_x, boat_y)), fill=True,
                            edgecolor="#ac9280", facecolor="#ecc8af")
             self.ax.add_patch(boat)
         plt.grid(True, color="#e8e8e8", lw=2)
 
         # Maximize when using Tk
-        if "Tk" in mpl.get_backend() and not self.maximized:
-            manager = plt.get_current_fig_manager()
-            manager.resize(*manager.window.maxsize())
-        self.fig.canvas.draw()
+        # if "Tk" in mpl.get_backend() and not self.maximized:
+        #     manager = plt.get_current_fig_manager()
+        #     manager.resize(*manager.window.maxsize())
+        plt.savefig(f"frame_{self.frame_counter}.png")
+        self.frame_counter += 1
+        plt.clf()
 
         self.maximized = True
         plt.pause(0.01)
-
-    def save_figure(self, file_name):
-        plt.savefig(file_name)
 
     def _reset_figure(self):
         """
@@ -158,10 +159,11 @@ class SailingGridworld(object):
         :return:
         """
         self.fig, self.ax = plt.subplots(nrows=1, num="Sailor")
-        xt = np.arange(0, 1, 1 / self.w)
-        yt = np.arange(0, 1, 1 / self.h)
+        xt = np.arange(0, 1, 1/self.w)
+        yt = np.arange(0, 1, 1/self.h)
         self.ax.set_xticks(xt)
         self.ax.set_yticks(yt)
+        self.fig.set_size_inches(16,12)
 
     def _update_transitions(self):
         """Updates the state transition model after rewards etc. were changed."""
@@ -195,22 +197,22 @@ class SailingGridworld(object):
                 The next state (as numpy.array)"""
         if relative_pos == self.LEFT:
             if state[0] > 0:
-                return state[0] - 1, state[1]
+                return state[0]-1, state[1]
             else:
                 return state
         elif relative_pos == self.RIGHT:
-            if state[0] < self.w - 1:
-                return state[0] + 1, state[1]
+            if state[0] < self.w-1:
+                return state[0]+1, state[1]
             else:
                 return state
         elif relative_pos == self.DOWN:
             if state[1] > 0:
-                return state[0], state[1] - 1
+                return state[0], state[1]-1
             else:
                 return state
         elif relative_pos == self.UP:
-            if state[1] < self.h - 1:
-                return state[0], state[1] + 1
+            if state[1] < self.h-1:
+                return state[0], state[1]+1
             else:
                 return state
         else:
@@ -230,7 +232,7 @@ class SailingGridworld(object):
         if self.terminate[state[0], state[1]]:
             return [self.Transition(None, 0, True, 1)]
         transitions = []
-        action1 = (action - 1) % self.NO_ACTIONS
+        action1 = (action-1) % self.NO_ACTIONS
         state1 = self._get_neighbouring_state(state, action1)
         reward1 = self.rewards[state1[0], state1[1]]
         terminate1 = self.terminate[state1[0], state1[1]]
@@ -245,7 +247,7 @@ class SailingGridworld(object):
         state3 = self._get_neighbouring_state(state, action)
         reward3 = self.rewards[state3[0], state3[1]]
         terminate3 = self.terminate[state3[0], state3[1]]
-        transitions.append(self.Transition(state3, reward3, terminate3, 1 - 2 * self.wrong_action_prob))
+        transitions.append(self.Transition(state3, reward3, terminate3, 1-2*self.wrong_action_prob))
         return transitions
 
     def step(self, action):
@@ -294,9 +296,9 @@ class SailingGridworld(object):
            Args:
                values: a width*height array of floating point numbers"""
         for i, row in enumerate(values):
-            rx = (i + 0.5) / self.w
+            rx = (i+0.5)/self.w
             for j, value in enumerate(row):
-                ry = (j + v_offset) / self.h
+                ry = (j+v_offset)/self.h
                 self.ax.text(rx, ry, "{}={:.2f}".format(label, value), ha='center', va='center')
 
     def draw_actions(self, policy):
@@ -313,11 +315,12 @@ class SailingGridworld(object):
         pol_str[pol_str == str(self.UP)] = "Up"
         pol_str[pol_str == str(self.DOWN)] = "Down"
         for i, row in enumerate(pol_str):
-            rx = (i + 0.5) / self.w
+            rx = (i+0.5)/self.w
             for j, value in enumerate(row):
-                ry = (j + 0.2) / self.h
+                ry = (j+0.2)/self.h
                 self.ax.text(rx, ry, "a: {}".format(value), ha='center', va='center')
 
     def clear_text(self):
         """Removes all text from the environment before it's rendered."""
         self.ax.texts.clear()
+
