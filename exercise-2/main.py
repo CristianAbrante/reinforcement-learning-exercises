@@ -59,7 +59,7 @@ if __name__ == "__main__":
     env.draw_values(value_est)
     env.draw_actions(policy)
     env.render()
-    env.save_figure("report/img/final-board.png")
+    env.save_figure("report/img/final-board-with-policy.png")
     sleep(1)
 
     # Save the state values and the policy
