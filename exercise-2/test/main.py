@@ -78,7 +78,7 @@ if __name__ == "__main__":
     sleep(1)
 
     # Save the state values and the policy
-    fnames = "values.npy", "policy.npy"
+    fnames = "task_1_values.npy", "task_2_policy.npy"
     np.save(fnames[0], value_est)
     np.save(fnames[1], policy)
     print("Saved state values and policy to", *fnames)

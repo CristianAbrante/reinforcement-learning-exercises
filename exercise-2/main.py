@@ -111,7 +111,7 @@ if __name__ == "__main__":
     env.save_figure("report/img/final-board-with-policy-2.png")
     sleep(1)
 
-    # question 4
+    # # question 4
     number_of_executions = [10, 25, 50, 75, 80]
 
     for execution in number_of_executions:
@@ -120,8 +120,8 @@ if __name__ == "__main__":
                                                                                                          prev_val, _,
                                                                                                          current_iteration)
         value_est, policy = value_iteration(env, gamma, evaluator)
-
-    # Task 3
+    #
+    # # Task 3
     value_est, policy = value_iteration(env, gamma, convergence_criteria)
 
     # Show the values and the policy
@@ -130,15 +130,15 @@ if __name__ == "__main__":
     env.render()
     env.save_figure("report/img/final-board-with-threshold.png")
     sleep(1)
-
-    # Task 4
+    #
+    # # Task 4
     discounts = discount_return(env, policy, max_iterations=1000, gamma=gamma)
 
     print(f"mean of Gs -> {np.mean(discounts)}")
     print(f"Std of Gs -> {np.std(discounts)}")
 
     # Save the state values and the policy
-    # fnames = "values.npy", "policy.npy"
+    fnames = "task_1_values.npy", "task_2_policy.npy"
     np.save(fnames[0], value_est)
     np.save(fnames[1], policy)
     print("Saved state values and policy to", *fnames)
