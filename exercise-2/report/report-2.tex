@@ -76,16 +76,26 @@ Probabilities of arriving to a certain state giving one action and a current sta
 
 \section{Value iteration}
 
-\subsection{Implement value iteration for the sailor example.}
+\subsection{Task 1: Implement value iteration for the sailor example.}
 
-The value iteration for updating the values and optimal policy for each state of the grid gave us the following result for the final iteration:
+After implementing value iteration algorithm, we plot the board for observing the results of the value state function and the optimal action for each state (Figure \ref{fig:my_label}).
 
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \includegraphics{}
-    \caption{Caption}
+    \includegraphics[scale=0.28]{exercise-2/report/img/final-board.png}
+    \caption{Board with value function for each state, after iteration 100}
     \label{fig:my_label}
 \end{figure}
+
+\subsection{Question 2: What is the state value of the harbour and rock states? Why?}
+
+The state-value function both for the rocks and for the harbour have the value of zero, this happens because those states are final states, so the episode finish if the agent reach them. And that also makes sense if we consider the value function as the expected reward when starting in state $s$, because if that state when we are \textit{starting} is final, then we could not expect more value.
+
+\subsection{Task 2: compute the optimal policy}
+
+Running the same value iteration algorithm as before, the optimal policy could be computed, as the action which gives us the best expected reward, and we can plot it in the similar board as the previous sections:
+
+
 
 \bibliographystyle{ieeetr}
 \bibliography{template}  % Modify template with your bibliography name
