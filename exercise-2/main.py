@@ -14,7 +14,7 @@ np.set_printoptions(threshold=np.Inf)
 epsilon = 10e-4  # TODO: Use this criteria for Task 3
 
 # Set up the environment
-env = SailingGridworld(rock_penalty=-2)
+env = SailingGridworld(rock_penalty=-10)
 value_est = np.zeros((env.w, env.h))
 env.draw_values(value_est)
 
@@ -52,14 +52,14 @@ if __name__ == "__main__":
 
         # previous values are updated
         previous_values = np.copy(value_est)
-        print(f"iteration {iter}")
-        print(value_est)
+        # print(f"iteration {iter}")
+        # print(value_est)
 
     # Show the values and the policy
     env.draw_values(value_est)
     env.draw_actions(policy)
     env.render()
-    env.save_figure("report/img/final-board-with-policy.png")
+    env.save_figure("report/img/final-board-with-policy-2.png")
     sleep(1)
 
     # Save the state values and the policy
@@ -70,15 +70,14 @@ if __name__ == "__main__":
 
     # Run a single episode
     # TODO: Run multiple episodes and compute the discounted returns (Task 4)
-    # done = False
-    # while not done:
-    #     # Select a random action
-    #     # TODO: Use the policy to take the optimal action (Task 2)
-    #     action = int(np.random.random() * 4)
-    #
-    #     # Step the environment
-    #     state, reward, done, _ = env.step(action)
-    #
-    #     # Render and sleep
-    #     env.render()
-    #     sleep(0.5)
+    done = False
+    while not done:
+        # Select a random action
+        action = policy[env.state[0], env.state[1]]
+
+        # Step the environment
+        state, reward, done, _ = env.step(action)
+
+        # Render and sleep
+        env.render()
+        sleep(0.05)
