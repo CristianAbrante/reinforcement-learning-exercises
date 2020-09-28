@@ -8,6 +8,7 @@
 \usepackage[many]{tcolorbox}
 \tcbuselibrary{listings}
 \usepackage{listings}
+\usepackage{float}
 
 \definecolor{lg}{HTML}{f0f0f0}
 
@@ -78,13 +79,13 @@ Probabilities of arriving to a certain state giving one action and a current sta
 
 \subsection{Task 1: Implement value iteration for the sailor example.}
 
-After implementing value iteration algorithm, we plot the board for observing the results of the value state function and the optimal action for each state (Figure \ref{fig:my_label}).
+After implementing value iteration algorithm, we plot the board for observing the results of the value state function and the optimal action for each state (Figure \ref{fig:final-board}).
 
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=0.28]{exercise-2/report/img/final-board.png}
+    \includegraphics[scale=0.25]{exercise-2/report/img/final-board.png}
     \caption{Board with value function for each state, after iteration 100}
-    \label{fig:my_label}
+    \label{fig:final-board}
 \end{figure}
 
 \subsection{Question 2: What is the state value of the harbour and rock states? Why?}
@@ -93,9 +94,27 @@ The state-value function both for the rocks and for the harbour have the value o
 
 \subsection{Task 2: compute the optimal policy}
 
-Running the same value iteration algorithm as before, the optimal policy could be computed, as the action which gives us the best expected reward, and we can plot it in the similar board as the previous sections:
+Running the same value iteration algorithm as before, the optimal policy could be computed, as the action which gives us the best expected reward, and we can plot it in the similar board as the previous sections (Figure \ref{fig:pol-final-board}):
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{exercise-2/report/img/final-board-with-policy.png}
+    \caption{Board with value function and policy for each state, after iteration 100}
+    \label{fig:pol-final-board}
+\end{figure}
 
+\subsection{Question 3: Which path did the sailor choose, the safe path below the rocks, or the dangerous path between the rocks? If you change the reward for hitting the rocks to -10 (that is, make the sailor value life more), does he still choose the same path?}
+
+I have made five different executions of the program, and in all the cases, the agent decides to take the risky path between the rocks, achieving the goal in 3 times out of five. It it reasonable that the sailor decides to go between the rocks, because the value function for the sea states in the middle of the rocks is bigger than the value of the surrounding states. \\
+
+If the reward value of the rock states is changed to -10, then the value functions for each states are updated accordingly:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{exercise-2/report/img/final-board-with-policy.png}
+    \caption{Board with value function and policy for each state, after iteration 100}
+    \label{fig:pol-final-board}
+\end{figure}
 
 \bibliographystyle{ieeetr}
 \bibliography{template}  % Modify template with your bibliography name
