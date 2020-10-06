@@ -52,23 +52,32 @@ def get_cell_index(state):
 
 
 def get_action(state, q_values, greedy=False):
-    # TODO: Implement epsilon-greedy
-    raise NotImplementedError("Implement epsilon-greedy")
+    state_index = get_cell_index(state)
+    actions = q_values[state_index]
+
+    return np.argmax(actions) \
+        if greedy or np.random.uniform(0, 1) >= epsilon \
+        else np.random.randint(num_of_actions)
 
 
 def update_q_value(old_state, action, new_state, reward, done, q_array):
-    # TODO: Implement Q-value update
-    old_cell_index = get_cell_index(old_state)
-    new_cell_index = get_cell_index(new_state)
-    raise NotImplementedError("Implement Q-value update")
+    if not done:
+        old_cell_index = get_cell_index(old_state)
+        new_cell_index = get_cell_index(new_state)
+
+        old_q_value_index = *old_cell_index, action
+        old_cell_q_value = q_array[old_q_value_index]
+
+        q_array[old_q_value_index] = old_cell_q_value + \
+                                     alpha * (reward + gamma * np.max(q_array[new_cell_index]) - old_cell_q_value)
 
 
 # Training loop
 ep_lengths, epl_avg = [], []
-for ep in range(episodes+test_episodes):
+for ep in range(episodes + test_episodes):
     test = ep > episodes
     state, done, steps = env.reset(), False, 0
-    epsilon = 0.0  # T1: GLIE/constant, T3: Set to 0
+    epsilon = 0.2  # T1: GLIE/constant, T3: Set to 0
     while not done:
         action = get_action(state, q_grid, greedy=test)
         new_state, reward, done, _ = env.step(action)
@@ -79,9 +88,9 @@ for ep in range(episodes+test_episodes):
         state = new_state
         steps += 1
     ep_lengths.append(steps)
-    epl_avg.append(np.mean(ep_lengths[max(0, ep-500):]))
+    epl_avg.append(np.mean(ep_lengths[max(0, ep - 500):]))
     if ep % 200 == 0:
-        print("Episode {}, average timesteps: {:.2f}".format(ep, np.mean(ep_lengths[max(0, ep-200):])))
+        print("Episode {}, average timesteps: {:.2f}".format(ep, np.mean(ep_lengths[max(0, ep - 200):])))
 
 # Save the Q-value array
 np.save("q_values.npy", q_grid)  # TODO: SUBMIT THIS Q_VALUES.NPY ARRAY
@@ -89,7 +98,6 @@ np.save("q_values.npy", q_grid)  # TODO: SUBMIT THIS Q_VALUES.NPY ARRAY
 # Calculate the value function
 values = np.zeros(q_grid.shape[:-1])  # TODO: COMPUTE THE VALUE FUNCTION FROM THE Q-GRID
 np.save("value_func.npy", values)  # TODO: SUBMIT THIS VALUE_FUNC.NPY ARRAY
-
 
 # Plot the heatmap
 # TODO: Plot the heatmap here using Seaborn or Matplotlib
@@ -100,4 +108,3 @@ plt.plot(epl_avg)
 plt.legend(["Episode length", "500 episode average"])
 plt.title("Episode lengths")
 plt.show()
-
