@@ -118,6 +118,61 @@ If the reward value of the rock states is changed to -10, then the value functio
 
 The execution in this board have a different result, because in this case the agent does not take so much risk, and decides to follow the safe path through the bottom of the board. 
 
-\bibliographystyle{ieeetr}
-\bibliography{template}  % Modify template with your bibliography name
+\subsection{Question 4: What happens if you run the algorithm for a smaller amount of iterations?}
+
+We have created five different executions for smaller number of iterations in order to see if the algorithm converges, and those results are presented in the following table
+
+\begin{table}[h]
+\centering
+\begin{tabular}{l|l}
+         & converges \\ \hline
+max = 10 & False     \\
+max = 25 & False     \\
+max = 50 & True      \\
+max = 75 & True      \\
+max = 80 & True     
+\end{tabular}
+\end{table}
+
+As we can see for small number of maximum iterations the algorithm does not converge. When comparing value function with policy, we can say that policy takes less time to converge, because the function of the values is numeric so the conditions for convergence are more strict and they require more iterations.
+
+\subsection{Task 3: Set the reward for crashing into the rocks back to -2. Change the termination condition of your algorithm to make it run until convergence.}
+
+Setting the convergence criteria for the algorithm, produces the following result in the final board:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.25]{exercise-2/report/img/final-board-with-threshold.png}
+    \caption{Board with convergence criteria after iteration 35}
+    \label{fig:pol-final-board}
+\end{figure}
+
+In this case, the algorithm converges after \textbf{35 iterations}.
+
+\subsection{Task 4: Modify the program to compute the discounted return of the initial state}
+
+After the execution of the program (with convergence criteria for value iteration), those were the obtained results for the discounted return of the initial state:
+
+\begin{itemize}
+    \item $\Bar{G} = 0.6251$
+    \item $std(G) = 1.3645$
+\end{itemize}
+
+\subsection{Question 5: What is the relationship between the discounted return and the value function? Explain briefly.}
+
+Value function for each state is defined as the expected return if the agent is located in this state and follows a policy $\pi$, which can be represented mathematically as:
+
+\begin{equation}
+    v_\pi(s) = E[G | S_t= s]
+\end{equation}
+
+And the discounted return is the actual value obtained when all the iterations have been executed, is the quantity that the value function tries to estimate. \\
+
+We can test if the value function expected and the one obtained were accurate for our particular case. And we can see that they actually are, because we have calculated that the expected return is 0.66 with value iteration and the real calculation was 0.6251, which differs roughly in 0.04 units.
+
+\subsection{Question 6: s Imagine a reinforcement learning problem involving a robot exploring an unknown environment.}
+
+One of the key characteristics of this problem is that the environment is fully known, so before starting the path, we can iterate thought all the states in order to calculate the value function for each one. In the case of an unknown environment, we can not proceed in the same way because we do not know the dinamics of the environment.
+
+
 \end{document}
