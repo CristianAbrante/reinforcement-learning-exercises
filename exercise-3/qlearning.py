@@ -7,7 +7,7 @@ np.random.seed(123)
 env = gym.make('CartPole-v0')
 env.seed(321)
 
-episodes = 20000
+episodes = 200
 test_episodes = 10
 num_of_actions = 2
 
@@ -101,6 +101,51 @@ np.save("value_func.npy", values)  # TODO: SUBMIT THIS VALUE_FUNC.NPY ARRAY
 
 # Plot the heatmap
 # TODO: Plot the heatmap here using Seaborn or Matplotlib
+
+
+# Choose the optimal q value for each state (based on x and y)
+
+steps = range(discr)
+optimal_q_value = np.array([
+    [
+        np.mean([np.max(q_grid[x, v, th, av]) for v in steps for av in steps])
+        for th in steps
+    ] for x in steps
+])
+
+## Here we create the labels for the ticks
+# x_labels = [f"{np.round(th_grid[i], 2)}, {np.round(th_grid[i + 1], 2)}" for i in range(len(th_grid) - 1)]
+x_labels = [f"{np.round(th_grid[th], 2)}" for th in range(len(th_grid))]
+# y_labels = [f"{np.round(x_grid[i], 2)}, {np.round(x_grid[i + 1], 2)}" for i in range(len(x_grid) - 1)]
+y_labels = [f"{np.round(x_grid[x], 2)}" for x in range(len(x_grid))]
+
+# Creation of the heatmap plot
+fig, ax = plt.subplots()
+im = ax.imshow(optimal_q_value)
+
+# Ticks created with the length of the labels
+ax.set_xticks(np.arange(len(x_labels)))
+ax.set_yticks(np.arange(len(y_labels)))
+# And then labels shown
+ax.set_xticklabels(x_labels)
+ax.set_yticklabels(y_labels)
+# Labels sets
+ax.set_xlabel("X values")
+ax.set_ylabel("θ values")
+
+# Rotate the tick labels and set their alignment.
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+         rotation_mode="anchor")
+
+# Loop over data dimensions and create text annotations.
+for i in range(len(x_labels)):
+    for j in range(len(y_labels)):
+        text = ax.text(j, i, np.round(optimal_q_value[i, j], 1),
+                       ha="center", va="center", color="w")
+
+ax.set_title("Optimal Q-value function for x and θ")
+fig.tight_layout()
+plt.show()
 
 # Draw plots
 plt.plot(ep_lengths)
