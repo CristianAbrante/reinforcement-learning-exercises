@@ -2,6 +2,11 @@ import gym
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import argparse
+import sys
+
+PLOTS_DIR = "plots/"
+MODEL_DIR = "models/"
 
 np.random.seed(123)
 
@@ -40,6 +45,16 @@ av_grid = np.linspace(av_min, av_max, discr)
 q_grid = np.zeros((discr, discr, discr, discr, num_of_actions)) + initial_q
 
 
+# Parse script arguments
+def parse_args(args=sys.argv[1:]):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--eps_type", default="fixed",
+                        help="reward function to be used")
+    parser.add_argument("--eps_value", type=float, default=0.0,
+                        help="Max number of episode steps.")
+    return parser.parse_args(args)
+
+
 def heatmap(data, row_labels, col_labels, ax=None,
             cbar_kw={}, cbarlabel="", **kwargs):
     """
@@ -71,7 +86,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
     im = ax.imshow(data, **kwargs)
 
     # Create colorbar
-    cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
+    cbar = ax.figure.colorbar(im, ax=ax, shrink=0.4, **cbar_kw)
     cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
 
     # We want to show all ticks...
@@ -163,6 +178,16 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
     return texts
 
 
+a = episodes / (1.0 - 0.01)
+
+
+def get_epsilon(args, step):
+    if args.eps_type == "fixed":
+        return args.eps_value
+    else:
+        return a / (a + step)
+
+
 def find_nearest(array, value):
     return np.argmin(np.abs(array - value))
 
@@ -175,7 +200,7 @@ def get_cell_index(state):
     return x, v, th, av
 
 
-def get_action(state, q_values, greedy=False):
+def get_action(state, q_values, epsilon, greedy=False):
     state_index = get_cell_index(state)
     actions = q_values[state_index]
 
@@ -196,65 +221,69 @@ def update_q_value(old_state, action, new_state, reward, done, q_array):
                                      alpha * (reward + gamma * np.max(q_array[new_cell_index]) - old_cell_q_value)
 
 
-# Training loop
-ep_lengths, epl_avg = [], []
-for ep in range(episodes + test_episodes):
-    test = ep > episodes
-    state, done, steps = env.reset(), False, 0
-    epsilon = 0.2  # T1: GLIE/constant, T3: Set to 0
-    while not done:
-        action = get_action(state, q_grid, greedy=test)
-        new_state, reward, done, _ = env.step(action)
-        if not test:
-            update_q_value(state, action, new_state, reward, done, q_grid)
-        else:
-            env.render()
-        state = new_state
-        steps += 1
-    ep_lengths.append(steps)
-    epl_avg.append(np.mean(ep_lengths[max(0, ep - 500):]))
-    if ep % 200 == 0:
-        print("Episode {}, average timesteps: {:.2f}".format(ep, np.mean(ep_lengths[max(0, ep - 200):])))
+# Entry point of the script
+if __name__ == "__main__":
+    args = parse_args()
 
-# Save the Q-value array
-np.save("q_values.npy", q_grid)  # TODO: SUBMIT THIS Q_VALUES.NPY ARRAY
+    # Training loop
+    ep_lengths, epl_avg = [], []
+    for ep in range(episodes + test_episodes):
+        test = ep > episodes
+        state, done, steps = env.reset(), False, 0
+        epsilon = get_epsilon(args, steps)  # T1: GLIE/constant, T3: Set to 0
+        while not done:
+            action = get_action(state, q_grid, epsilon, greedy=test)
+            new_state, reward, done, _ = env.step(action)
+            if not test:
+                update_q_value(state, action, new_state, reward, done, q_grid)
+            else:
+                env.render()
+            state = new_state
+            steps += 1
+        ep_lengths.append(steps)
+        epl_avg.append(np.mean(ep_lengths[max(0, ep - 500):]))
+        if ep % 200 == 0:
+            print("Episode {}, average timesteps: {:.2f}".format(ep, np.mean(ep_lengths[max(0, ep - 200):])))
 
-# Calculate the value function
-values = np.zeros(q_grid.shape[:-1])  # TODO: COMPUTE THE VALUE FUNCTION FROM THE Q-GRID
-np.save("value_func.npy", values)  # TODO: SUBMIT THIS VALUE_FUNC.NPY ARRAY
+    # Save the Q-value array
+    np.save(f"{MODEL_DIR}q_values-eps-{args.eps_type}-{args.eps_value}.npy",
+            q_grid)  # TODO: SUBMIT THIS Q_VALUES.NPY ARRAY
 
-# Plot the heatmap
-# TODO: Plot the heatmap here using Seaborn or Matplotlib
+    # Calculate the value function
+    values = np.zeros(q_grid.shape[:-1])  # TODO: COMPUTE THE VALUE FUNCTION FROM THE Q-GRID
+    np.save(f"{MODEL_DIR}value_func-{args.eps_type}-{args.eps_value}.npy",
+            values)  # TODO: SUBMIT THIS VALUE_FUNC.NPY ARRAY
 
+    # Plot the heatmap
+    # Choose the optimal q value for each state (based on x and y)
 
-# Choose the optimal q value for each state (based on x and y)
+    steps = range(discr)
+    optimal_q_value = np.array([
+        [
+            np.mean([np.max(q_grid[x, v, th, av]) for v in steps for av in steps])
+            for th in steps
+        ] for x in steps
+    ])
 
-steps = range(discr)
-optimal_q_value = np.array([
-    [
-        np.mean([np.max(q_grid[x, v, th, av]) for v in steps for av in steps])
-        for th in steps
-    ] for x in steps
-])
+    ## Labels for the ticks
+    # x_labels = [f"{np.round(th_grid[i], 2)}, {np.round(th_grid[i + 1], 2)}" for i in range(len(th_grid) - 1)]
+    x_labels = [f"{np.round(th_grid[th], 2)}" for th in range(len(th_grid))]
+    # y_labels = [f"{np.round(x_grid[i], 2)}, {np.round(x_grid[i + 1], 2)}" for i in range(len(x_grid) - 1)]
+    y_labels = [f"{np.round(x_grid[x], 2)}" for x in range(len(x_grid))]
 
-## Labels for the ticks
-# x_labels = [f"{np.round(th_grid[i], 2)}, {np.round(th_grid[i + 1], 2)}" for i in range(len(th_grid) - 1)]
-x_labels = [f"{np.round(th_grid[th], 2)}" for th in range(len(th_grid))]
-# y_labels = [f"{np.round(x_grid[i], 2)}, {np.round(x_grid[i + 1], 2)}" for i in range(len(x_grid) - 1)]
-y_labels = [f"{np.round(x_grid[x], 2)}" for x in range(len(x_grid))]
+    fig, ax = plt.subplots(figsize=(10, 10))
+    im, cbar = heatmap(optimal_q_value, y_labels, x_labels, ax=ax,
+                       cmap="YlGn", cbarlabel="Q-value")
+    texts = annotate_heatmap(im, valfmt="{x:.1f}")
 
-fig, ax = plt.subplots()
+    fig.tight_layout()
+    plt.savefig(f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}.png")
+    plt.show()
 
-im, cbar = heatmap(optimal_q_value, y_labels, x_labels, ax=ax,
-                   cmap="YlGn", cbarlabel="Q-value")
-texts = annotate_heatmap(im, valfmt="{x:.1f}")
-
-fig.tight_layout()
-plt.show()
-
-# Draw plots
-plt.plot(ep_lengths)
-plt.plot(epl_avg)
-plt.legend(["Episode length", "500 episode average"])
-plt.title("Episode lengths")
-plt.show()
+    # Draw plots
+    plt.plot(ep_lengths)
+    plt.plot(epl_avg)
+    plt.legend(["Episode length", "500 episode average"])
+    plt.title("Episode lengths")
+    plt.savefig(f"{PLOTS_DIR}episodes-{args.eps_type}-{args.eps_value}.png")
+    plt.show()
