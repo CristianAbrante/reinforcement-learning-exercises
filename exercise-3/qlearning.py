@@ -230,7 +230,7 @@ if __name__ == "__main__":
     for ep in range(episodes + test_episodes):
         test = ep > episodes
         state, done, steps = env.reset(), False, 0
-        epsilon = get_epsilon(args, steps)  # T1: GLIE/constant, T3: Set to 0
+        epsilon = get_epsilon(args, ep)  # T1: GLIE/constant, T3: Set to 0
         while not done:
             action = get_action(state, q_grid, epsilon, greedy=test)
             new_state, reward, done, _ = env.step(action)
