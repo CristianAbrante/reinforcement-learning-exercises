@@ -178,6 +178,32 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
     return texts
 
 
+def plot_heatmap(q_grid, file_name=None):
+    steps = range(discr)
+    optimal_q_value = np.array([
+        [
+            np.mean([np.max(q_grid[x, v, th, av]) for v in steps for av in steps])
+            for th in steps
+        ] for x in steps
+    ])
+
+    ## Labels for the ticks
+    # x_labels = [f"{np.round(th_grid[i], 2)}, {np.round(th_grid[i + 1], 2)}" for i in range(len(th_grid) - 1)]
+    x_labels = [f"{np.round(th_grid[th], 2)}" for th in range(len(th_grid))]
+    # y_labels = [f"{np.round(x_grid[i], 2)}, {np.round(x_grid[i + 1], 2)}" for i in range(len(x_grid) - 1)]
+    y_labels = [f"{np.round(x_grid[x], 2)}" for x in range(len(x_grid))]
+
+    fig, ax = plt.subplots(figsize=(10, 10))
+    im, cbar = heatmap(optimal_q_value, y_labels, x_labels, ax=ax,
+                       cmap="YlGn", cbarlabel="Q-value")
+    texts = annotate_heatmap(im, valfmt="{x:.1f}")
+
+    fig.tight_layout()
+    if file_name is not None:
+        plt.savefig(file_name)
+    plt.show()
+
+
 def get_epsilon(args, step):
     if args.eps_type == "fixed":
         return args.eps_value
@@ -224,7 +250,10 @@ if __name__ == "__main__":
 
     # Training loop
     ep_lengths, epl_avg = [], []
+    print_heatmap_eps = [0, 1, episodes / 2]
     for ep in range(episodes + test_episodes):
+        if ep in print_heatmap_eps:
+            plot_heatmap(q_grid, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}-ep-{ep}.png")
         test = ep > episodes
         state, done, steps = env.reset(), False, 0
         epsilon = get_epsilon(args, ep)  # T1: GLIE/constant, T3: Set to 0
@@ -254,28 +283,7 @@ if __name__ == "__main__":
     # Plot the heatmap
     # Choose the optimal q value for each state (based on x and y)
 
-    steps = range(discr)
-    optimal_q_value = np.array([
-        [
-            np.mean([np.max(q_grid[x, v, th, av]) for v in steps for av in steps])
-            for th in steps
-        ] for x in steps
-    ])
-
-    ## Labels for the ticks
-    # x_labels = [f"{np.round(th_grid[i], 2)}, {np.round(th_grid[i + 1], 2)}" for i in range(len(th_grid) - 1)]
-    x_labels = [f"{np.round(th_grid[th], 2)}" for th in range(len(th_grid))]
-    # y_labels = [f"{np.round(x_grid[i], 2)}, {np.round(x_grid[i + 1], 2)}" for i in range(len(x_grid) - 1)]
-    y_labels = [f"{np.round(x_grid[x], 2)}" for x in range(len(x_grid))]
-
-    fig, ax = plt.subplots(figsize=(10, 10))
-    im, cbar = heatmap(optimal_q_value, y_labels, x_labels, ax=ax,
-                       cmap="YlGn", cbarlabel="Q-value")
-    texts = annotate_heatmap(im, valfmt="{x:.1f}")
-
-    fig.tight_layout()
-    plt.savefig(f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}.png")
-    plt.show()
+    plot_heatmap(q_grid, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}.png")
 
     # Draw plots
     plt.plot(ep_lengths)
