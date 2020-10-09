@@ -33,7 +33,7 @@ av_min, av_max = -4, 4
 gamma = 0.98
 alpha = 0.1
 target_eps = 0.1
-a = 0  # TODO: Set the correct value.
+a = round(target_eps * episodes / (1 - target_eps))
 initial_q = 0  # T3: Set to 50
 
 # Create discretization grid
@@ -176,9 +176,6 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
             texts.append(text)
 
     return texts
-
-
-a = episodes / (1.0 - 0.01)
 
 
 def get_epsilon(args, step):
