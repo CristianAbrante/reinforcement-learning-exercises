@@ -126,6 +126,26 @@ In those plots the difference between both algorithms is well seen. In the $\eps
 
 On the variable $\epsilon$ version (Figure \ref{fig:task-2-2}), we can notice that even tough there is a concentration in the selected actions, the state space has more states explored. This is because in the initial phases of the training the $\epsilon$ value have a high value, so random actions are selected in many situations.
 
+\subsection{Question 1: What do you think the heatmap would have looked like}
+
+\subsubsection{before the training?}
+
+Before the training, the heatmap can only contain the initial value of the q-grid, which for the case of task 1 and 2 is going to be value 0. So the heatmap will be a 16x16 grid with all the values filled to 0. \\
+
+This could be confirmed practically, executing the algorithm with fixed $\epsilon = 0.2$, and printing the grid before the first episode.
+
+\subsubsection{after a single episode?}
+
+After the first episode, the heatmap will only include the explored positions in the first executions, which will be probably the ones near the central position of the agent at the beginning (near the value 0.0 for $x$).
+
+As in previous section, we have included the practical execution for fixed $\epsilon=0.2$
+
+\subsubsection{halfway through the training?}
+
+In the halfway of the training the states with higher q-value should be in the center of the grid, because they have been explored probably more times. At the same time, compared with the execution in one episode, there should be more states with set q-values.\\
+
+Figure is the practical example of it:
+
 \section{Task 2}
 To embed code snippets in the report, you can use the \texttt{pycode} environment.
 
