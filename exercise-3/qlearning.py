@@ -34,7 +34,7 @@ gamma = 0.98
 alpha = 0.1
 target_eps = 0.1
 a = round(target_eps * episodes / (1 - target_eps))
-initial_q = 0  # T3: Set to 50
+initial_q = 50  # T3: Set to 50
 
 # Create discretization grid
 x_grid = np.linspace(x_min, x_max, discr)
@@ -250,7 +250,9 @@ if __name__ == "__main__":
 
     # Training loop
     ep_lengths, epl_avg = [], []
-    print_heatmap_eps = [0, 1, episodes / 2]
+    # print_heatmap_eps = [0, 1, episodes / 2] # Question 1
+    print_heatmap_eps = []
+
     for ep in range(episodes + test_episodes):
         if ep in print_heatmap_eps:
             plot_heatmap(q_grid, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}-ep-{ep}.png")
@@ -272,23 +274,23 @@ if __name__ == "__main__":
             print("Episode {}, average timesteps: {:.2f}".format(ep, np.mean(ep_lengths[max(0, ep - 200):])))
 
     # Save the Q-value array
-    np.save(f"{MODEL_DIR}q_values-eps-{args.eps_type}-{args.eps_value}.npy",
+    np.save(f"{MODEL_DIR}q_values-eps-{args.eps_type}-{args.eps_value}-q0-50.npy",
             q_grid)  # TODO: SUBMIT THIS Q_VALUES.NPY ARRAY
 
     # Calculate the value function
     values = np.zeros(q_grid.shape[:-1])  # TODO: COMPUTE THE VALUE FUNCTION FROM THE Q-GRID
-    np.save(f"{MODEL_DIR}value_func-{args.eps_type}-{args.eps_value}.npy",
+    np.save(f"{MODEL_DIR}value_func-{args.eps_type}-{args.eps_value}-q0-50.npy",
             values)  # TODO: SUBMIT THIS VALUE_FUNC.NPY ARRAY
 
     # Plot the heatmap
     # Choose the optimal q value for each state (based on x and y)
 
-    plot_heatmap(q_grid, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}.png")
+    plot_heatmap(q_grid, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}-q0-50.png")
 
     # Draw plots
     plt.plot(ep_lengths)
     plt.plot(epl_avg)
     plt.legend(["Episode length", "500 episode average"])
     plt.title("Episode lengths")
-    plt.savefig(f"{PLOTS_DIR}episodes-{args.eps_type}-{args.eps_value}.png")
+    plt.savefig(f"{PLOTS_DIR}episodes-{args.eps_type}-{args.eps_value}-q0-50.png")
     plt.show()
