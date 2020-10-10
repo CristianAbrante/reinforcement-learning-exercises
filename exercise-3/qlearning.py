@@ -34,15 +34,13 @@ gamma = 0.98
 alpha = 0.1
 target_eps = 0.1
 a = round(target_eps * episodes / (1 - target_eps))
-initial_q = 50  # T3: Set to 50
+initial_q = 0
 
 # Create discretization grid
 x_grid = np.linspace(x_min, x_max, discr)
 v_grid = np.linspace(v_min, v_max, discr)
 th_grid = np.linspace(th_min, th_max, discr)
 av_grid = np.linspace(av_min, av_max, discr)
-
-q_grid = np.zeros((discr, discr, discr, discr, num_of_actions)) + initial_q
 
 
 # Parse script arguments
@@ -52,6 +50,7 @@ def parse_args(args=sys.argv[1:]):
                         help="reward function to be used")
     parser.add_argument("--eps_value", type=float, default=0.0,
                         help="Max number of episode steps.")
+    parser.add_argument("--q0", type=int, default=0, help="Initial value of q.")
     return parser.parse_args(args)
 
 
@@ -178,15 +177,7 @@ def annotate_heatmap(im, data=None, valfmt="{x:.2f}",
     return texts
 
 
-def plot_heatmap(q_grid, file_name=None):
-    steps = range(discr)
-    optimal_q_value = np.array([
-        [
-            np.mean([np.max(q_grid[x, v, th, av]) for v in steps for av in steps])
-            for th in steps
-        ] for x in steps
-    ])
-
+def plot_heatmap(value_function, file_name=None):
     ## Labels for the ticks
     # x_labels = [f"{np.round(th_grid[i], 2)}, {np.round(th_grid[i + 1], 2)}" for i in range(len(th_grid) - 1)]
     x_labels = [f"{np.round(th_grid[th], 2)}" for th in range(len(th_grid))]
@@ -194,7 +185,7 @@ def plot_heatmap(q_grid, file_name=None):
     y_labels = [f"{np.round(x_grid[x], 2)}" for x in range(len(x_grid))]
 
     fig, ax = plt.subplots(figsize=(10, 10))
-    im, cbar = heatmap(optimal_q_value, y_labels, x_labels, ax=ax,
+    im, cbar = heatmap(value_function, y_labels, x_labels, ax=ax,
                        cmap="YlGn", cbarlabel="Q-value")
     texts = annotate_heatmap(im, valfmt="{x:.1f}")
 
@@ -202,6 +193,10 @@ def plot_heatmap(q_grid, file_name=None):
     if file_name is not None:
         plt.savefig(file_name)
     plt.show()
+
+
+def construct_q_grid(args):
+    return np.zeros((discr, discr, discr, discr, num_of_actions)) + args.q0
 
 
 def get_epsilon(args, step):
@@ -248,6 +243,9 @@ def update_q_value(old_state, action, new_state, reward, done, q_array):
 if __name__ == "__main__":
     args = parse_args()
 
+    # Construct q grid
+    q_grid = construct_q_grid(args)
+
     # Training loop
     ep_lengths, epl_avg = [], []
     # print_heatmap_eps = [0, 1, episodes / 2] # Question 1
@@ -274,23 +272,42 @@ if __name__ == "__main__":
             print("Episode {}, average timesteps: {:.2f}".format(ep, np.mean(ep_lengths[max(0, ep - 200):])))
 
     # Save the Q-value array
-    np.save(f"{MODEL_DIR}q_values-eps-{args.eps_type}-{args.eps_value}-q0-50.npy",
-            q_grid)  # TODO: SUBMIT THIS Q_VALUES.NPY ARRAY
+    if args.q0 != 0:
+        np.save(f"{MODEL_DIR}q_values-eps-{args.eps_type}-{args.eps_value}-q0-{args.q0}.npy",
+                q_grid)
+    else:
+        np.save(f"{MODEL_DIR}q_values-eps-{args.eps_type}-{args.eps_value}.npy",
+                q_grid)
 
     # Calculate the value function
-    values = np.zeros(q_grid.shape[:-1])  # TODO: COMPUTE THE VALUE FUNCTION FROM THE Q-GRID
-    np.save(f"{MODEL_DIR}value_func-{args.eps_type}-{args.eps_value}-q0-50.npy",
-            values)  # TODO: SUBMIT THIS VALUE_FUNC.NPY ARRAY
+    steps = range(discr)
+    values = np.array([
+        [
+            np.mean([np.max(q_grid[x, v, th, av]) for v in steps for av in steps])
+            for th in steps
+        ] for x in steps
+    ])
+    if args.q0 != 0:
+        np.save(f"{MODEL_DIR}value_func-{args.eps_type}-{args.eps_value}-q0-{args.q0}.npy",
+                values)
+    else:
+        np.save(f"{MODEL_DIR}value_func-{args.eps_type}-{args.eps_value}.npy",
+                values)
 
     # Plot the heatmap
     # Choose the optimal q value for each state (based on x and y)
-
-    plot_heatmap(q_grid, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}-q0-50.png")
+    if args.q0 != 0:
+        plot_heatmap(values, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}-q0-{args.q0}.png")
+    else:
+        plot_heatmap(values, f"{PLOTS_DIR}heatmap-{args.eps_type}-{args.eps_value}.png")
 
     # Draw plots
     plt.plot(ep_lengths)
     plt.plot(epl_avg)
     plt.legend(["Episode length", "500 episode average"])
     plt.title("Episode lengths")
-    plt.savefig(f"{PLOTS_DIR}episodes-{args.eps_type}-{args.eps_value}-q0-50.png")
+    if args.q0 != 0:
+        plt.savefig(f"{PLOTS_DIR}episodes-{args.eps_type}-{args.eps_value}-q0-{args.q0}.png")
+    else:
+        plt.savefig(f"{PLOTS_DIR}episodes-{args.eps_type}-{args.eps_value}.png")
     plt.show()
