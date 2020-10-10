@@ -10,6 +10,8 @@ torch = "*"
 gym = "*"
 matplotlib = "*"
 seaborn = "*"
+box2d-py = "*"
+box2d = "*"
 
 [requires]
 python_version = "2.7"
