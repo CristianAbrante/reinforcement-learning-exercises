@@ -167,6 +167,50 @@ Figure \ref{fig:q-1-3} is the practical example of it:
     \label{fig:q-1-3}
 \end{figure}
 
+\subsection{Task 3: Set $\epsilon$ to zero, effectively making the policy greedy w.r.t. current Q-value estimates.}
+
+If the policy is set as effectively greedy (setting $\epsilon = 0$), then those plots are obtained for the average timesteps in the training process:
+
+\begin{figure}[ht]
+    \centering
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-3/plots/episodes-fixed-0.0.png}
+     \caption{Heatmap of the optimal Q-value for $\epsilon=0.2$}
+     \label{fig:task-2-1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-3/plots/episodes-fixed-0.0-q0-50.png}
+     \caption{Heatmap of the optimal Q-value for variable $\epsilon$}
+     \label{fig:task-2-2}
+   \end{minipage}
+\end{figure}
+
+\subsection{Question 2: Based on the results you observed in Task 3, answer the following questions:}
+
+\subsubsection{In which case does the model perform better?}
+
+In both of the cases, the algorithm performed extremely bad. It does not achieved any improvement in all the execution period, generating an almost plane line of average timesteps for all the training. \\
+
+If we observe the results of the execution, we can also see that the model did not learnt the desired behaviour. On the contrary, it gets stuck in the middle of the screen without balancing the pole.
+
+\subsubsection{Why is this the case, and how does the initialization of Q values
+affect exploration?}
+
+This situation happens because the agent in most of the cases choose the same actions, which are maximized, but never explore other possibilities which can led it to promising results. This can also be seen in the heatmap plot of the optimal q-values (Figure \ref{fig:q2-2}):
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.25]{exercise-3/plots/heatmap-fixed-0.0.png}
+    \caption{Heatmap for $\epsilon=0$ and $q_0 = 0$}
+    \label{fig:q2-2}
+\end{figure}
+
+In this plot, only night states in the middle of the board have a value different than zero, and they are not enough for the agent to learn how to balance correctly the pole. \\
+
+The initialization of the grid with the value 50 is no useful in this case, because it is only a re-scale of the initial values, but for the purpose of the agent, all the states at the beginning are equally good. This leads to the same process as if they were initialized to 0.
+
 \section{Task 2}
 To embed code snippets in the report, you can use the \texttt{pycode} environment.
 
