@@ -56,11 +56,11 @@ ELEC-E8125 - Reinforcement Learning}
 
 \subsection{Task 1: Implement Q-learning for the Cartpole environment. Compare using a constant value of $\epsilon$ = 0.2 to reduce the value of $\epsilon$ over time}
 
-The comparison of the results between the two versions of the Q-learning algorithm (for different values of $\epsilon$) was done by observing the plot of the average timesteps that the execution achieved, and also by observing the execution of the cartpole with the trained model.
+The comparison of the results between the two versions of the Q-learning algorithm (for different values of $\epsilon$) was done by observing the plot of the average timesteps that the execution achieved, and also by observing the execution of the cart pole with the trained model.
 
 \subsubsection{$\epsilon$ fixed to 0.2}
 
-Running the Q learning algorithm for the fixed value of $\epsilon=0.2$ for 20000 episodes, gave as a result the following plot of the average timesteps length:
+Running the Q learning algorithm for the fixed value of $\epsilon=0.2$ for 20000 episodes, gave, as a result, the following plot of the average timesteps length:
 
 \begin{figure}[h]
     \centering
@@ -69,11 +69,11 @@ Running the Q learning algorithm for the fixed value of $\epsilon=0.2$ for 20000
     \label{fig:fixed-0.2}
 \end{figure}
 
-In figure \ref{fig:fixed-0.2} is shown the evolution of the timesteps that the model is able to achieve over the training episodes. Variance is really significant over the executions, but the average tendency is to increase, reaching almost an stabilization level from episode 15000.\\
+In figure \ref{fig:fixed-0.2} is shown the evolution of the timesteps that the model is able to achieve over the training episodes. Variance is really significant over the executions, but the average tendency is to increase, reaching almost a stabilization level from episode 15000.\\
 
 \subsubsection{GLIE $\epsilon$}
 
-For the \textit{greedy in limit with infinite exploration} technique, the $\epsilon$ variable was setted according to this formula:
+For the \textit{greedy in limit with infinite exploration} technique, the $\epsilon$ variable was set according to this formula:
 
 \begin{equation}
     \epsilon = \frac{a}{a + p}
@@ -100,7 +100,7 @@ Having this formula specified, we can execute the training, observing the corres
 
 As we can see in figure \ref{fig:variable}, the tendency of the average timesteps is to increase over the episodes, performing slightly better compared to the fixed value of $\epsilon$ (Figure \ref{fig:fixed-0.2}). \\
 
-As there is only an small difference between the performance of both algorithms (even though the GLIE is better), both of the executions in the cartpole environment lead to successful results, having an agent wich is capable of balancing the pole all over the timesteps.
+As there is only a small difference between the performance of both algorithms (even though the GLIE is better), both of the executions in the cart pole environment lead to successful results, having an agent that is capable of balancing the pole all over the timesteps.
 
 \subsection{Task 2: Plot the optimal value function of each state}
 
@@ -122,17 +122,17 @@ After the execution of the training for both types of algorithms, we can plot th
    \end{minipage}
 \end{figure}
 
-In those plots the difference between both algorithms is well seen. In the $\epsilon$-fixed version (Figure \ref{fig:task-2-1}), we can see that the exploration of the state space is limited, because the agent is greedy more frequently.\\
+In those plots the difference between both algorithms is well seen. In the $\epsilon$-fixed version (Figure \ref{fig:task-2-1}), we can see that the exploration of the state space is limited because the agent is greedy more frequently.\\
 
-On the variable $\epsilon$ version (Figure \ref{fig:task-2-2}), we can notice that even tough there is a concentration in the selected actions, the state space has more states explored. This is because in the initial phases of the training the $\epsilon$ value have a high value, so random actions are selected in many situations.
+On the variable $\epsilon$ version (Figure \ref{fig:task-2-2}), we can notice that even though there is a concentration in the selected actions, the state space has more states explored. This is because in the initial phases of the training the $\epsilon$ value has a high value, so random actions are selected in many situations.
 
 \subsection{Question 1: What do you think the heatmap would have looked like}
 
 \subsubsection{before the training?}
 
-Before the training, the heatmap can only contain the initial value of the q-grid, which for the case of task 1 and 2 is going to be value 0. So the heatmap will be a 16x16 grid with all the values filled to 0. \\
+Before the training, the heatmap can only contain the initial value of the q-grid, which for the case of tasks 1 and 2 is going to be value 0. So the heatmap will be a 16x16 grid with all the values filled to 0. \\
 
-This could be confirmed practically, executing the algorithm with fixed $\epsilon = 0.2$, and printing the grid before the first episode (Figure \ref{fig:q-1-1}).
+This could be confirmed practically, executing the algorithm with a fixed $\epsilon = 0.2$, and printing the grid before the first episode (Figure \ref{fig:q-1-1}).
 
 \begin{figure}[h]
     \centering
@@ -145,7 +145,7 @@ This could be confirmed practically, executing the algorithm with fixed $\epsilo
 
 After the first episode, the heatmap will only include the explored positions in the first executions, which will be probably the ones near the central position of the agent at the beginning (near the value 0.0 for $x$).\\
 
-As in previous section, we have included the practical execution for fixed $\epsilon=0.2$
+As in the previous section, we have included the practical execution for fixed $\epsilon=0.2$
 
 \begin{figure}[h]
     \centering
@@ -156,7 +156,7 @@ As in previous section, we have included the practical execution for fixed $\eps
 
 \subsubsection{halfway through the training?}
 
-In the halfway of the training the states with higher q-value should be in the center of the grid, because they have been explored probably more times. At the same time, compared with the execution in one episode, there should be more states with set q-values.\\
+In the halfway of the training, the states with higher q-value should be in the center of the grid, because they have been explored probably more times. At the same time, compared with the execution in one episode, there should be more states with set q-values.\\
 
 Figure \ref{fig:q-1-3} is the practical example of it:
 
@@ -191,14 +191,14 @@ If the policy is set as effectively greedy (setting $\epsilon = 0$), then those 
 
 \subsubsection{In which case does the model perform better?}
 
-In both of the cases, the algorithm performed extremely bad. It does not achieved any improvement in all the execution period, generating an almost plane line of average timesteps for all the training. \\
+In both cases, the algorithm performed extremely badly. It does not achieve any improvement in all the execution period, generating an almost plane line of average timesteps for all the training. \\
 
-If we observe the results of the execution, we can also see that the model did not learnt the desired behaviour. On the contrary, it gets stuck in the middle of the screen without balancing the pole.
+If we observe the results of the execution, we can also see that the model did not learn the desired behavior. On the contrary, it gets stuck in the middle of the screen without balancing the pole.
 
 \subsubsection{Why is this the case, and how does the initialization of Q values
 affect exploration?}
 
-This situation happens because the agent in most of the cases choose the same actions, which are maximized, but never explore other possibilities which can led it to promising results. This can also be seen in the heatmap plot of the optimal q-values (Figure \ref{fig:q2-2}):
+This situation happens because the agent in most of the cases chooses the same actions, which are maximized, but never explore other possibilities which can lead it to promising results. This can also be seen in the heatmap plot of the optimal q-values (Figure \ref{fig:q2-2}):
 
 \begin{figure}[h]
     \centering
@@ -209,45 +209,37 @@ This situation happens because the agent in most of the cases choose the same ac
 
 In this plot, only night states in the middle of the board have a value different than zero, and they are not enough for the agent to learn how to balance correctly the pole. \\
 
-The initialization of the grid with the value 50 is no useful in this case, because it is only a re-scale of the initial values, but for the purpose of the agent, all the states at the beginning are equally good. This leads to the same process as if they were initialized to 0.
+The initialization of the grid with the value 50 is not useful in this case, because it is only a re-scale of the initial values, but for the purpose of the agent, all the states at the beginning are equally good. This leads to the same process as if they were initialized to 0.
 
-\section{Task 2}
-To embed code snippets in the report, you can use the \texttt{pycode} environment.
+\section{Lunar lander}
 
-\begin{pycode}
-for episode_number in range(train_episodes):
-    reward_sum, timesteps = 0, 0
-    done = False
-    # Reset the environment and observe the initial state
-    observation = env.reset()
+\subsection{Task 4: Modify your code for Task 1 and try to apply it in the Lunar lander environment.}
 
-    # Loop until the episode is over
-    while not done:
-        # Get action from the agent
-        action, action_probabilities = agent.get_action(observation)
-        previous_observation = observation
+After modifying the first exercise for the execution of the Lunar Landing environment, we have executed the training of the agent using fixed $\epsilon=0.2$ and using GLIE, obtaining these plots as a result:
 
-        # Perform the action on the environment, get new state and reward
-        observation, reward, done, info = env.step(action)
-
-        # Store action's outcome (so that the agent can improve its policy)
-        agent.store_outcome(previous_observation, action_probabilities, action, reward)
-
-        # Draw the frame, if desired
-        if render:
-            env.render()
-\end{pycode}
-
-\section{Question 1}
-
-If you add a figure, you can refer to it using Figure.~\ref*{fig:fig1}.
-
-\begin{figure}[h] 
-	\centering  % Remember to centre the figure
-    \includegraphics[width=0.9\columnwidth]{img/training.pdf}
-	\caption{This is a sample figure.}
-	\label{fig:fig1}
+\begin{figure}[ht]
+    \centering
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-3/plots/lunarlander-episodes-fixed-0.2.png}
+     \caption{Plot of the average timesteps in training for $\epsilon=0.2$}
+     \label{fig:task-2-1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-3/plots/lunarlander-episodes-variable-0.0.png}
+     \caption{Plot of the average timesteps in training for GLIE}
+     \label{fig:task-2-2}
+   \end{minipage}
 \end{figure}
+
+\subsection{Question 3.1: Is the lander able to learn any useful behaviour? Why/why not?}
+
+After the execution, of the lunar lander environment with fixed $\epsilon$ and with GLIE, it can be concluded that the agent is not able to learn the desired environment. \\
+
+In the execution we can see that the agent approximately learns how to remain stable in the air, but can not land appropriately. The technique that we have used for training the lander is based on dynamic programming (saving states in a table), so it has not enough information for learning complex patterns. In addition to that, we have to point out the complexity of the problem, which depends on eight different variables, on the contrary to the cart pole, which only depends on four.\\
+
+This is why usually other techniques based on deep neural networks are used (For example, Deep Q-Learning \cite{deep-q-learning}) because they are able to generalize more complex patterns.
 
 \bibliographystyle{ieeetr}
 \bibliography{bibliography}  % Modify template with your bibliography name
