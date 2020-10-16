@@ -12,6 +12,8 @@ matplotlib = "*"
 seaborn = "*"
 box2d-py = "*"
 box2d = "*"
+scikit-learn = "*"
+tensorboard = "*"
 
 [requires]
 python_version = "2.7"

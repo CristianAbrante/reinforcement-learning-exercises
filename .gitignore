@@ -6,6 +6,7 @@
 *.ai
 *.pkl
 *.npy
+runs/
 
 ### Linux ###
 *~

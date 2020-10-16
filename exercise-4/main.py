@@ -9,7 +9,7 @@ from torch.utils.tensorboard import SummaryWriter
 from utils import plot_rewards
 
 env_name = "CartPole-v0"
-#env_name = "LunarLander-v2"
+# env_name = "LunarLander-v2"
 env = gym.make(env_name)
 env.reset()
 
@@ -59,7 +59,7 @@ for ep in range(num_episodes):
     # Initialize the environment and state
     state = env.reset()
     done = False
-    eps = glie_a/(glie_a+ep)
+    eps = glie_a / (glie_a + ep)
     cum_reward = 0
     while not done:
         # Select and perform an action
@@ -68,6 +68,7 @@ for ep in range(num_episodes):
         cum_reward += reward
 
         # Task 1: TODO: Update the Q-values
+        agent.single_update(state, action, next_state, reward, done)
         # Task 2: TODO: Store transition and batch-update Q-values
         # Task 4: Update the DQN
 
@@ -87,9 +88,9 @@ for ep in range(num_episodes):
     #               "weights_%s_%d.mdl" % (env_name, ep))
 
 plot_rewards(cumulative_rewards)
+plt.savefig("plots/task-1a.png")
 print('Complete')
 plt.ioff()
 plt.show()
 
 # Task 3 - plot the policy
-
