@@ -49,10 +49,10 @@ class Agent(object):
         if len(state.shape) == 1:
             state = state.reshape(1, -1)
         # Task 1a: DONE: Use (s, abs(s)) as features
-        return [np.array([sample, np.abs(sample)]).flatten() for sample in state]
+        # return [np.array([sample, np.abs(sample)]).flatten() for sample in state]
 
         # Task 1b: RBF features
-        # return self.featurizer.transform(self.scaler.transform(state))
+        return self.featurizer.transform(self.scaler.transform(state))
 
     def get_action(self, state, epsilon=0.0):
         if np.random.random() < epsilon:
