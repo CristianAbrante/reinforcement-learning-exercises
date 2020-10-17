@@ -88,7 +88,7 @@ for ep in range(num_episodes):
     #               "weights_%s_%d.mdl" % (env_name, ep))
 
 plot_rewards(cumulative_rewards)
-plt.savefig("plots/task-1b.png")
+plt.savefig("plots/task-1a.png")
 print('Complete')
 plt.ioff()
 plt.show()

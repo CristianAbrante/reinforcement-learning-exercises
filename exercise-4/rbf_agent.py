@@ -49,7 +49,7 @@ class Agent(object):
         if len(state.shape) == 1:
             state = state.reshape(1, -1)
         # Task 1a: DONE: Use (s, abs(s)) as features
-        # return [np.array([sample, np.abs(sample)]).flatten() for sample in state]
+        # return [np.array([sample, np.abs(sample)]).flatten() for sample in self.scaler.transform(state)]
 
         # Task 1b: RBF features
         return self.featurizer.transform(self.scaler.transform(state))
@@ -66,23 +66,28 @@ class Agent(object):
             return a
 
     def single_update(self, state, action, next_state, reward, done):
-        # Calculate feature representations of the
-        # Task 1: DONE: Set the feature state and feature next state
-        featurized_state = self.featurize(state)
-        featurized_next_state = self.featurize(next_state)
+        if not done:
+            # Calculate feature representations of the
+            # Task 1: DONE: Set the feature state and feature next state
+            featurized_state = self.featurize(state)
+            featurized_next_state = self.featurize(next_state)
 
-        # Task 1:  DONE Get Q(s', a) for the next state
-        next_qa = [q.predict(featurized_next_state)[0] for q in self.q_functions]
-        next_qa = np.array(next_qa)
-        next_qs = np.max(next_qa, axis=0)
+            # Task 1:  DONE Get Q(s', a) for the next state
+            next_qsa = np.array([q.predict(featurized_next_state)[0] for q in self.q_functions])
 
-        # Calculate the updated target Q- values
-        # Task 1: DONE: Calculate target based on rewards and next_qs
-        current_q = [q.predict(featurized_state)[0] for q in self.q_functions][action]
-        target = [reward + self.gamma * next_qs - current_q]
+            # Calculate the updated target Q- values
+            # Task 1: DONE: Calculate target based on rewards and next_qs
+            target = np.array([reward + self.gamma * np.max(next_qsa)])
 
-        # Update Q-value estimation
-        self.q_functions[action].partial_fit(featurized_state, target)
+            # print("-------------")
+            # print("next qa -> ", next_qsa)
+            # print("next qs -> ", np.max(next_qsa))
+            # print("target -> ", target, target.shape)
+            # print("featurized state -> ", featurized_state)
+            # print("-------------")
+
+            # Update Q-value estimation
+            self.q_functions[action].partial_fit(featurized_state, target)
 
     def update_estimator(self):
         if len(self.memory) < self.batch_size:
