@@ -8,6 +8,7 @@
 \usepackage[many]{tcolorbox}
 \tcbuselibrary{listings}
 \usepackage{listings}
+\usepackage{float}
 
 \definecolor{lg}{HTML}{f0f0f0}
 
@@ -73,9 +74,57 @@ Where:
     \item $max_aQ(\phi(s'), a)$: is the maximum value function of the next state, following the optimal policy.
 \end{itemize}
 
-Using this TD(0) update, the following plots were obtained:
+Using this formula, and for the two featurizer functions, the following plots were obtained:
 
+\begin{figure}[H]
+    \centering
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-1a.png}
+     \caption{Plot for handcrafted feature vector}
+     \label{fig:task-2-1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-1b.png}
+     \caption{Plot for radial basis function representation}
+     \label{fig:task-2-2}
+   \end{minipage}
+\end{figure}
 
+As we can see in this plots, the second function allows the agent to actually learn the underlying pattern, on the contrary, using the first feature vector, the model is not able to learn. 
+
+\subsection{Question 1}
+\textbf{
+Would it be possible to learn accurately Q-values for the Cartpole problem using linear features (by passing the state directly to a linear regressor)? Why/why not?
+}\\
+
+There are some reasons that would make difficult to learn accurately the Q-values for the Cartpole environment if we pass directly the state to the linear regressor. \\
+
+The main drawback of doing this, is that the state is not scaled by default, and that would make more difficult for the regressor to learn the weights. For overcoming this first difficulty, the value of the states has been scaled using an standard scaler, fitted with an arbitrary dataset created with a range of possible values. \\
+
+The second drawback of passing the state directly is that it only contains 4 values, so the regressor would only have four weights for features. This could be not enough information for the generalization of the Q values.
+
+\subsection{Task 2}
+\textbf{Modify your Task 1 implementation to perform minibatch updates and use experience replay (while keeping the original code for Task 1 submission). Run the experiments with Cartpole with both feature representations.}\\
+
+Using minibatch updates and experience replay, Task 1 was executed, obtaining the following plots as a result:
+
+\begin{figure}[H]
+    \centering
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-2a.png}
+     \caption{Minibatch and experience replay with handcrafted vector}
+     \label{fig:task-2-1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-2b.png}
+     \caption{Minibatch and experience replay with radial basis function representation}
+     \label{fig:task-2-2}
+   \end{minipage}
+\end{figure}
 
 \section{Task 2}
 To embed code snippets in the report, you can use the \texttt{pycode} environment.
