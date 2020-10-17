@@ -49,11 +49,11 @@ class Agent(object):
         if len(state.shape) == 1:
             state = state.reshape(1, -1)
         # Task 1a: DONE: Use (s, abs(s)) as features
-        scaled_state = self.scaler.transform(state)
-        return np.array([np.array([sample, np.abs(sample)]).flatten() for sample in scaled_state])
+        # scaled_state = self.scaler.transform(state)
+        # return np.array([np.array([sample, np.abs(sample)]).flatten() for sample in scaled_state])
 
         # Task 1b: RBF features
-        # return self.featurizer.transform(self.scaler.transform(state))
+        return self.featurizer.transform(self.scaler.transform(state))
 
     def get_action(self, state, epsilon=0.0):
         if np.random.random() < epsilon:
@@ -65,6 +65,13 @@ class Agent(object):
             qs = np.array(qs)
             a = np.argmax(qs, axis=0)
             return a
+
+    def get_greedy_action(self, state):
+        featurized = self.featurize(state)
+        qs = [q.predict(featurized)[0] for q in self.q_functions]
+        qs = np.array(qs)
+        a = np.argmax(qs)
+        return a
 
     def single_update(self, state, action, next_state, reward, done):
         if not done:

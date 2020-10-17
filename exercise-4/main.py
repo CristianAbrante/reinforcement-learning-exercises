@@ -90,9 +90,59 @@ for ep in range(num_episodes):
     #               "weights_%s_%d.mdl" % (env_name, ep))
 
 plot_rewards(cumulative_rewards)
-plt.savefig("plots/task-2a.png")
+plt.savefig("plots/task-2b.png")
 print('Complete')
 plt.ioff()
 plt.show()
 
 # Task 3 - plot the policy
+
+# Values used for the discretization
+discr = 16
+x_min, x_max = -2.4, 2.4
+th_min, th_max = -0.3, 0.3
+
+# Fixed values
+v = 0
+av = 0
+
+# Discretization of the values
+x_grid = np.linspace(x_min, x_max, discr)
+th_grid = np.linspace(th_min, th_max, discr)
+
+# Calculation of the policy (optimal or greedy action)
+steps = range(discr)
+policy = np.array([
+    [agent.get_greedy_action(np.array([x, v, th, av])) for th in steps] for x in steps
+])
+
+# Plot is initialized
+fig, ax = plt.subplots()
+im = ax.imshow(policy)
+
+x_labels = [f"{np.round(th_grid[th], 2)}" for th in range(len(th_grid))]
+y_labels = [f"{np.round(x_grid[x], 2)}" for x in range(len(x_grid))]
+
+# Ticks on both edges are set
+ax.set_xticks(np.arange(len(x_labels)))
+ax.set_yticks(np.arange(len(y_labels)))
+ax.set_xticklabels(x_labels)
+ax.set_yticklabels(y_labels)
+ax.set_xlabel("angle (θ)")
+ax.set_ylabel("position (x)")
+
+# Rotate the tick labels and set their alignment.
+plt.setp(ax.get_xticklabels(), rotation=45, ha="right",
+         rotation_mode="anchor")
+
+# Loop over data dimensions and create text annotations.
+for i in range(len(x_labels)):
+    for j in range(len(y_labels)):
+        action = policy[i, j]
+        text = ax.text(j, i, action,
+                       ha="center", va="center", color="w" if action == 0 else "k")
+
+ax.set_title(f"Optimal action (Policy) for ẋ={v} and θ˙={av}")
+fig.tight_layout()
+plt.savefig("plots/task-3.png")
+plt.show()
