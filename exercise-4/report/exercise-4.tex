@@ -52,8 +52,30 @@
 ELEC-E8125 - Reinforcement Learning}
 
 \maketitle
-\section{Task 1}
-To cite works, put them in the template.bib file and use~\cite{sutton2018reinforcement}.
+\section{Approximation with non-linear features}
+
+\subsection{Task 1}
+\textbf{Implement Q-learning using function approximation, at every timestep using the latest state transition to perform a TD(0) update. Test the implementation on the
+Cartpole environment. Test two different features for state representations}\\
+
+For the implementation of function approximation using TD(0) update, the following formula was used for updating the target ($\delta$) values of the stochastic gradient regressor:
+
+\begin{equation}
+    \delta = r + \gamma \cdot max_a {Q(\phi(s'), a)}
+\end{equation}
+
+Where:
+
+\begin{itemize}
+    \item $r$: is the reward obtained in the current state.
+    \item $\gamma$: is the discount factor for future actions.
+    \item $\phi(s)$: is the featurizer function, in this task two different functions were used.
+    \item $max_aQ(\phi(s'), a)$: is the maximum value function of the next state, following the optimal policy.
+\end{itemize}
+
+Using this TD(0) update, the following plots were obtained:
+
+
 
 \section{Task 2}
 To embed code snippets in the report, you can use the \texttt{pycode} environment.
