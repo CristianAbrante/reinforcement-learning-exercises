@@ -90,7 +90,7 @@ for ep in range(num_episodes):
     #               "weights_%s_%d.mdl" % (env_name, ep))
 
 plot_rewards(cumulative_rewards)
-plt.savefig("plots/task-2b.png")
+plt.savefig("plots/task-2a.png")
 print('Complete')
 plt.ioff()
 plt.show()
@@ -144,5 +144,5 @@ for i in range(len(x_labels)):
 
 ax.set_title(f"Optimal action (Policy) for ẋ={v} and θ˙={av}")
 fig.tight_layout()
-plt.savefig("plots/task-3.png")
+# plt.savefig("plots/task-3.png")
 plt.show()
