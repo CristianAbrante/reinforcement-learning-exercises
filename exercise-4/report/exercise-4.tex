@@ -126,43 +126,46 @@ Using minibatch updates and experience replay, Task 1 was executed, obtaining th
    \end{minipage}
 \end{figure}
 
-\section{Task 2}
-To embed code snippets in the report, you can use the \texttt{pycode} environment.
+As we can see, experience replay and minibatch perform extremely well, achieving almost the higher possible reward from episode 500. On the other hand, even though we apply minibatch and experience replay, the handcrafted feature vector have not performed really well.
 
-\begin{pycode}
-for episode_number in range(train_episodes):
-    reward_sum, timesteps = 0, 0
-    done = False
-    # Reset the environment and observe the initial state
-    observation = env.reset()
+\subsection{Question 2}
+\textbf{
+Figure 2 shows the training performance of all four methods from Task 1, together with grid-based learning from Exercise 3 evaluated using GLIE with $\alpha = 50$.
+}
 
-    # Loop until the episode is over
-    while not done:
-        # Get action from the agent
-        action, action_probabilities = agent.get_action(observation)
-        previous_observation = observation
+\subsubsection{Question 2.1}
+\textbf{How does the experience replay affect the learning performance?}\\
 
-        # Perform the action on the environment, get new state and reward
-        observation, reward, done, info = env.step(action)
+Experience replay when applied to the handcrafted feture vector and the RBF featurer really makes a difference. We can see that the agent is able to reach higher rewards in early episodes. This is significant with handcrafted vector, because with experience replay we can see that the agent is able to reach the 50 timesteps of reward in almost the begining on the training, while it takes almost 500 episodes to be reached without it. Something similar happens with RBF, where the curve of the rewards is always better until almost 600 episodes. \\
 
-        # Store action's outcome (so that the agent can improve its policy)
-        agent.store_outcome(previous_observation, action_probabilities, action, reward)
+On the other hand, we can see that in the last episodes the experience replay curves overperform compared to the algorithm withouth experience replay. This could be due to the overfitting of the regressor, which alllows it to perform well in the early stages but decrease its performance in the final epochs.
 
-        # Draw the frame, if desired
-        if render:
-            env.render()
-\end{pycode}
+\subsubsection{Question 2.2}
+\textbf{Discuss the benefits and cons of using hand-crafted features.}
 
-\section{Question 1}
+The main advantage of using handcrafted vectors is the simplicity of understanding and implementation. One example of that, is the easy implementation of the transformation $|s|$. Other advantage of them is that usually they are computationally efficient to compute, because they are composed of basic operations.\\
 
-If you add a figure, you can refer to it using Figure.~\ref*{fig:fig1}.
+On the other hand, the main drawback of them is that they could sometimes not contain as much information of the state as the agent needs to generalize the desired value or behaviour, this is why sometimes, other methods such as radial basis functions are used.
 
-\begin{figure}[h] 
-	\centering  % Remember to centre the figure
-    \includegraphics[width=0.9\columnwidth]{img/training.pdf}
-	\caption{This is a sample figure.}
-	\label{fig:fig1}
+\subsubsection{Question 2.3}
+\textbf{
+Do grid based methods look sample-efficient compared to any of the function approximation methods? Why/why not?
+}\\
+
+Grid based methods look sample-efficient according to the plot, mainly because they reach the stability in earlier stages compared to the other algorithms. But apart from being sample-efficient, they seem not improve to better rewards when this stability is reached.
+
+\subsection{Task 3}
+\textbf{Create a 2D plot of policy (best action in terms of state) learned with RBF
+with experience replay in terms of x and $\theta$.} \\
+
+The heatmap created for the representation, shows the two possible actions (0 and 1, correspondent to move left and right), for a discretized version of 16 steps, both for $x$ and $\theta$:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.75]{exercise-4/plots/task-3.png}
+    \label{fig:my_label}
 \end{figure}
+
 
 \bibliographystyle{ieeetr}
 \bibliography{template}  % Modify template with your bibliography name
