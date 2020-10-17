@@ -49,11 +49,11 @@ class Agent(object):
         if len(state.shape) == 1:
             state = state.reshape(1, -1)
         # Task 1a: DONE: Use (s, abs(s)) as features
-        scaled_state = self.scaler.transform(state)
-        return np.array([np.array([sample, np.abs(sample)]).flatten() for sample in scaled_state])
+        # scaled_state = self.scaler.transform(state)
+        # return np.array([np.array([sample, np.abs(sample)]).flatten() for sample in scaled_state])
 
         # Task 1b: RBF features
-        # return self.featurizer.transform(self.scaler.transform(state))
+        return self.featurizer.transform(self.scaler.transform(state))
 
     def get_action(self, state, epsilon=0.0):
         if np.random.random() < epsilon:
@@ -74,11 +74,11 @@ class Agent(object):
             featurized_next_state = self.featurize(next_state)
 
             # Task 1:  DONE Get Q(s', a) for the next state
-            next_qsa = np.array([q.predict(featurized_next_state)[0] for q in self.q_functions])
+            next_qs = np.array([q.predict(featurized_next_state)[0] for q in self.q_functions])
 
             # Calculate the updated target Q- values
             # Task 1: DONE: Calculate target based on rewards and next_qs
-            target = np.array([reward + self.gamma * np.max(next_qsa)])
+            target = np.array([reward + self.gamma * np.max(next_qs)])
 
             # print("-------------")
             # print("next qa -> ", next_qsa)
@@ -99,19 +99,29 @@ class Agent(object):
             samples = self.memory.sample(self.batch_size)
 
         # Task 2: TODO: Reformat data in the minibatch
-        states = 0
-        action = 0
-        next_states = 0
-        rewards = 0
-        dones = 0
+        states = np.array([sample.state for sample in samples])
+        action = np.array([sample.action for sample in samples])
+        next_states = np.array([sample.next_state for sample in samples])
+        rewards = np.array([sample.reward for sample in samples])
+        dones = np.array([sample.done for sample in samples])
 
         # Task 2: TODO: Calculate Q(s', a)
         featurized_next_states = self.featurize(next_states)
-        next_qs = 0
+        next_qs = np.array([
+            [q.predict([featurized_next_state])[0] for q in self.q_functions]
+            for featurized_next_state in featurized_next_states
+        ])
 
         # Calculate the updated target values
         # Task 2: TODO: Calculate target based on rewards and next_qs
-        targets = 0
+        max_qs = np.array([np.max(next_qs_value) for next_qs_value in next_qs])
+        targets = rewards + self.gamma * max_qs
+
+        # print("------------------")
+        # print("featurized next -> ", featurized_next_states)
+        # print("rewards -> ", rewards)
+        # print("max qs -> ", max_qs)
+        # print("targets -> ", targets)
 
         # Calculate featurized states
         featurized_states = self.featurize(states)

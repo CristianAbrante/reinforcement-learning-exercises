@@ -68,8 +68,10 @@ for ep in range(num_episodes):
         cum_reward += reward
 
         # Task 1: DONE: Update the Q-values
-        agent.single_update(state, action, next_state, reward, done)
+        # agent.single_update(state, action, next_state, reward, done)
         # Task 2: TODO: Store transition and batch-update Q-values
+        agent.store_transition(state, action, next_state, reward, done)
+        agent.update_estimator()
         # Task 4: Update the DQN
 
         # Move to the next state
@@ -88,7 +90,7 @@ for ep in range(num_episodes):
     #               "weights_%s_%d.mdl" % (env_name, ep))
 
 plot_rewards(cumulative_rewards)
-plt.savefig("plots/task-1a.png")
+plt.savefig("plots/task-2b.png")
 print('Complete')
 plt.ioff()
 plt.show()
