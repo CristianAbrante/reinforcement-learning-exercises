@@ -7,6 +7,7 @@
 *.pkl
 *.npy
 runs/
+*.mdl
 
 ### Linux ###
 *~

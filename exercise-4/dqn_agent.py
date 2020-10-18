@@ -84,10 +84,10 @@ class Agent(object):
 
         # Compute a mask of non-final states and concatenate the batch elements
         # (a final state would've been the one after which simulation ended)
-        non_final_mask = 1-torch.tensor(batch.done, dtype=torch.uint8)
+        non_final_mask = 1 - torch.tensor(batch.done, dtype=torch.uint8)
         non_final_mask = non_final_mask.type(torch.bool)
-        non_final_next_states = [s for nonfinal,s in zip(non_final_mask,
-                                     batch.next_state) if nonfinal > 0]
+        non_final_next_states = [s for nonfinal, s in zip(non_final_mask,
+                                                          batch.next_state) if nonfinal > 0]
         non_final_next_states = torch.stack(non_final_next_states)
         state_batch = torch.stack(batch.state)
         action_batch = torch.cat(batch.action)
@@ -106,8 +106,14 @@ class Agent(object):
         next_state_values = torch.zeros(self.batch_size)
         next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0].detach()
 
-        # Task 4: TODO: Compute the expected Q values
-        expected_state_action_values = 0
+        # Task 4: DONE: Compute the expected Q values
+        expected_q_values = [
+            reward_batch[i].item() if batch.done[i] else
+            reward_batch[i].item() + self.gamma * next_state_values[i].item()
+            for i in range(len(batch.done))]
+        # Array is converted to numpy
+        expected_q_values = np.array(expected_q_values)
+        expected_state_action_values = torch.tensor(expected_q_values, dtype=torch.float32)
 
         # Compute Huber loss
         loss = F.smooth_l1_loss(state_action_values.squeeze(),
@@ -139,4 +145,3 @@ class Agent(object):
         next_state = torch.from_numpy(next_state).float()
         state = torch.from_numpy(state).float()
         self.memory.push(state, action, next_state, reward, done)
-

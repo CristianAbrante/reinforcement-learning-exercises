@@ -19,24 +19,24 @@ glie_a = 50
 num_episodes = 1000
 
 # Values for DQN  (Task 4)
-# if "CartPole" in env_name:
-#     TARGET_UPDATE = 50
-#     glie_a = 500
-#     num_episodes = 2000
-#     hidden = 12
-#     gamma = 0.95
-#     replay_buffer_size = 500000
-#     batch_size = 256
-# elif "LunarLander" in env_name:
-#     TARGET_UPDATE = 4
-#     glie_a = 100
-#     num_episodes = 2000
-#     hidden = 64
-#     gamma = 0.99
-#     replay_buffer_size = 50000
-#     batch_size = 64
-# else:
-#     raise ValueError("Please provide hyperparameters for %s" % env_name)
+if "CartPole" in env_name:
+    TARGET_UPDATE = 50
+    glie_a = 500
+    num_episodes = 2000
+    hidden = 12
+    gamma = 0.95
+    replay_buffer_size = 500000
+    batch_size = 256
+elif "LunarLander" in env_name:
+    TARGET_UPDATE = 4
+    glie_a = 100
+    num_episodes = 2000
+    hidden = 64
+    gamma = 0.99
+    replay_buffer_size = 50000
+    batch_size = 64
+else:
+    raise ValueError("Please provide hyperparameters for %s" % env_name)
 
 # The output will be written to your folder ./runs/CURRENT_DATETIME_HOSTNAME,
 # Where # is the consecutive number the script was run
@@ -47,11 +47,10 @@ n_actions = env.action_space.n
 state_space_dim = env.observation_space.shape[0]
 
 # Tasks 1-3 - RBF
-agent = RBFAgent(n_actions)
+# agent = RBFAgent(n_actions)
 
 # Task 4 - DQN
-# agent = DQNAgent(env_name, state_space_dim, n_actions, replay_buffer_size, batch_size,
-#               hidden, gamma)
+agent = DQNAgent(env_name, state_space_dim, n_actions, replay_buffer_size, batch_size, hidden, gamma)
 
 # Training loop
 cumulative_rewards = []
@@ -70,27 +69,28 @@ for ep in range(num_episodes):
         # Task 1: DONE: Update the Q-values
         # agent.single_update(state, action, next_state, reward, done)
         # Task 2: DONE: Store transition and batch-update Q-values
-        agent.store_transition(state, action, next_state, reward, done)
-        agent.update_estimator()
+        # agent.store_transition(state, action, next_state, reward, done)
+        # agent.update_estimator()
         # Task 4: Update the DQN
-
+        agent.store_transition(state, action, next_state, reward, done)
+        agent.update_network()
         # Move to the next state
         state = next_state
     cumulative_rewards.append(cum_reward)
     writer.add_scalar('Training ' + env_name, cum_reward, ep)
     # Update the target network, copying all weights and biases in DQN
     # Uncomment for Task 4
-    # if ep % TARGET_UPDATE == 0:
-    #     agent.update_target_network()
+    if ep % TARGET_UPDATE == 0:
+        agent.update_target_network()
 
     # Save the policy
     # Uncomment for Task 4
-    # if ep % 1000 == 0:
-    #     torch.save(agent.policy_net.state_dict(),
-    #               "weights_%s_%d.mdl" % (env_name, ep))
+    if ep % 1000 == 0:
+        torch.save(agent.policy_net.state_dict(),
+                   "weights_%s_%d.mdl" % (env_name, ep))
 
 plot_rewards(cumulative_rewards)
-plt.savefig("plots/task-2a.png")
+plt.savefig("plots/task-4a.png")
 print('Complete')
 plt.ioff()
 plt.show()
