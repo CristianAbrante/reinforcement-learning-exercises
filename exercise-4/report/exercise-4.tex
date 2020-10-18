@@ -166,6 +166,39 @@ The heatmap created for the representation, shows the two possible actions (0 an
     \label{fig:my_label}
 \end{figure}
 
+\section{Deep Q-Network}
+
+\subsection{Task 4}
+\textbf{Replace the RBFs in your Task 2 implementation with a neural network}\\
+
+In this task, Deep Q-Learning algorithm was implemented, using the following formula for the computation of the expected Q-Values ($y_i$), with wich the gradient descent is going to be performed:
+
+\begin{equation}
+    y_j = \left\lbrace
+                \begin{array}{ll}
+                    r_j & \textup{if } done_{j+1} = T\\
+                    r_j + \gamma max_aQ(\phi_{j+1}, a'; \theta) & otherwise
+                \end{array}
+            \right.
+\end{equation}
+
+The training performance of the algorithm with the CartPole and the LunarLander enviroment can be seen in the following plots:
+
+\begin{figure}[H]
+    \centering
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-2a.png}
+     \caption{Minibatch and experience replay with handcrafted vector}
+     \label{fig:task-2-1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-2b.png}
+     \caption{Minibatch and experience replay with radial basis function representation}
+     \label{fig:task-2-2}
+   \end{minipage}
+\end{figure}
 
 \bibliographystyle{ieeetr}
 \bibliography{template}  % Modify template with your bibliography name
