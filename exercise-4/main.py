@@ -8,8 +8,8 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from utils import plot_rewards
 
-env_name = "CartPole-v0"
-# env_name = "LunarLander-v2"
+# env_name = "CartPole-v0"
+env_name = "LunarLander-v2"
 env = gym.make(env_name)
 env.reset()
 
@@ -90,7 +90,7 @@ for ep in range(num_episodes):
                    "weights_%s_%d.mdl" % (env_name, ep))
 
 plot_rewards(cumulative_rewards)
-plt.savefig("plots/task-4a.png")
+plt.savefig("plots/task-4b.png")
 print('Complete')
 plt.ioff()
 plt.show()
