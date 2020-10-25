@@ -13,7 +13,7 @@ class Policy(torch.nn.Module):
         self.hidden = 64
         self.fc1 = torch.nn.Linear(state_space, self.hidden)
         self.fc2_mean = torch.nn.Linear(self.hidden, action_space)
-        self.sigma = torch.zeros(1)  # TODO: Implement accordingly (T1, T2)
+        self.sigma = torch.Tensor([5.0])  # TODO: Implement accordingly (T1, T2)
         self.init_weights()
 
     def init_weights(self):
@@ -26,10 +26,11 @@ class Policy(torch.nn.Module):
         x = self.fc1(x)
         x = F.relu(x)
         action_mean = self.fc2_mean(x)
-        sigma = self.sigma  # TODO: Is it a good idea to leave it like this?
+        sigma = torch.sqrt(self.sigma)  # TODO: Is it a good idea to leave it like this?
 
-        # TODO: Instantiate and return a normal distribution
+        # DONE: Instantiate and return a normal distribution
         # with mean mu and std of sigma (T1)
+        action_dist = Normal(loc=action_mean, scale=sigma)
 
         return action_dist
 
@@ -46,27 +47,49 @@ class Agent(object):
 
     def episode_finished(self, episode_number):
         action_probs = torch.stack(self.action_probs, dim=0) \
-                .to(self.train_device).squeeze(-1)
+            .to(self.train_device).squeeze(-1)
         rewards = torch.stack(self.rewards, dim=0).to(self.train_device).squeeze(-1)
         self.states, self.action_probs, self.rewards = [], [], []
 
-        # TODO: Compute discounted rewards (use the discount_rewards function)
+        # DONE: Compute discounted rewards (use the discount_rewards function)
+        discounted_rewards = discount_rewards(rewards, self.gamma)
 
-        # TODO: Compute the optimization term (T1)
+        # Task 1c
+        # mean_discounted_rewards = torch.mean(discounted_rewards)
+        # std_discounted_rewards = torch.std(discounted_rewards)
+        # discounted_rewards = (discounted_rewards - mean_discounted_rewards) / std_discounted_rewards
 
-        # TODO: Compute the gradients of loss w.r.t. network parameters (T1)
+        # DONE: Compute the optimization term (T1)
+        # task 1a
+        baseline = 0
+        # task 1b
+        # baseline = 20
 
-        # TODO: Update network parameters using self.optimizer and zero gradients (T1)
+        weighted_probs = -action_probs * (discounted_rewards - baseline)
+
+        # DONE: Compute the gradients of loss w.r.t. network parameters (T1)
+        loss = torch.mean(weighted_probs)
+        loss.backward()
+
+        # DONE: Update network parameters using self.optimizer and zero gradients (T1)
+        self.optimizer.step()
+        self.optimizer.zero_grad()
 
     def get_action(self, observation, evaluation=False):
         x = torch.from_numpy(observation).float().to(self.train_device)
 
-        # TODO: Pass state x through the policy network (T1)
+        # DONE: Pass state x through the policy network (T1)
+        aprob = self.policy.forward(x)
 
-        # TODO: Return mean if evaluation, else sample from the distribution
+        # DONE: Return mean if evaluation, else sample from the distribution
         # returned by the policy (T1)
+        if evaluation:
+            action = aprob.mean
+        else:
+            action = aprob.sample()
 
-        # TODO: Calculate the log probability of the action (T1)
+        # DONE: Calculate the log probability of the action (T1)
+        act_log_prob = aprob.log_prob(action)
 
         return action, act_log_prob
 
@@ -74,4 +97,3 @@ class Agent(object):
         self.states.append(observation)
         self.action_probs.append(action_prob)
         self.rewards.append(torch.Tensor([reward]))
-
