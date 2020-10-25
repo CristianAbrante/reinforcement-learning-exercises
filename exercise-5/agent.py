@@ -13,7 +13,8 @@ class Policy(torch.nn.Module):
         self.hidden = 64
         self.fc1 = torch.nn.Linear(state_space, self.hidden)
         self.fc2_mean = torch.nn.Linear(self.hidden, action_space)
-        self.sigma = torch.Tensor([5.0])  # TODO: Implement accordingly (T1, T2)
+        self.initial_sigma = torch.Tensor([10.0])
+        self.sigma = torch.Tensor([10.0])  # DONE: Implement accordingly (T1, T2)
         self.init_weights()
 
     def init_weights(self):
@@ -26,13 +27,17 @@ class Policy(torch.nn.Module):
         x = self.fc1(x)
         x = F.relu(x)
         action_mean = self.fc2_mean(x)
-        sigma = torch.sqrt(self.sigma)  # TODO: Is it a good idea to leave it like this?
+        sigma = torch.sqrt(self.sigma)  # DONE: Is it a good idea to leave it like this?
 
         # DONE: Instantiate and return a normal distribution
         # with mean mu and std of sigma (T1)
         action_dist = Normal(loc=action_mean, scale=sigma)
 
         return action_dist
+
+    def update_sigma_exponentially(self, episode_number):
+        c = 0.0005
+        self.sigma = self.initial_sigma * np.exp(-c * episode_number)
 
 
 class Agent(object):
@@ -46,6 +51,9 @@ class Agent(object):
         self.rewards = []
 
     def episode_finished(self, episode_number):
+        # Task 2a: update sigma of the policy exponentially decreasingly.
+        self.policy.update_sigma_exponentially(episode_number + 1)
+
         action_probs = torch.stack(self.action_probs, dim=0) \
             .to(self.train_device).squeeze(-1)
         rewards = torch.stack(self.rewards, dim=0).to(self.train_device).squeeze(-1)
@@ -57,7 +65,7 @@ class Agent(object):
         # Task 1c
         discounted_rewards -= torch.mean(discounted_rewards)
         discounted_rewards /= torch.std(discounted_rewards)
-        
+
         # DONE: Compute the optimization term (T1)
         # task 1a
         baseline = 0
