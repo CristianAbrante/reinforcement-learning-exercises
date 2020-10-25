@@ -13,8 +13,16 @@ class Policy(torch.nn.Module):
         self.hidden = 64
         self.fc1 = torch.nn.Linear(state_space, self.hidden)
         self.fc2_mean = torch.nn.Linear(self.hidden, action_space)
-        self.initial_sigma = torch.Tensor([10.0])
-        self.sigma = torch.Tensor([10.0])  # DONE: Implement accordingly (T1, T2)
+
+        # Task 1a, 1b, 1c
+        # self.sigma = torch.Tensor([5.0])
+
+        # Task 2a
+        # self.initial_sigma = torch.Tensor([10.0])
+        # self.sigma = torch.Tensor([10.0])
+
+        # Task 2b
+        self.sigma = torch.nn.Parameter(torch.Tensor([10.0]))
         self.init_weights()
 
     def init_weights(self):
@@ -52,7 +60,7 @@ class Agent(object):
 
     def episode_finished(self, episode_number):
         # Task 2a: update sigma of the policy exponentially decreasingly.
-        self.policy.update_sigma_exponentially(episode_number + 1)
+        # self.policy.update_sigma_exponentially(episode_number + 1)
 
         action_probs = torch.stack(self.action_probs, dim=0) \
             .to(self.train_device).squeeze(-1)

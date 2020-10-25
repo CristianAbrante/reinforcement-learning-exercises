@@ -70,7 +70,7 @@ def train(env_name, print_things=True, train_run_id=0, train_episodes=5000):
         plt.plot(average_reward_history)
         plt.legend(["Reward", "100-episode average"])
         plt.title("Reward history")
-        plt.savefig("plots/task-2a.png")
+        plt.savefig("plots/task-2b.png")
         plt.show()
         print("Training finished.")
     data = pd.DataFrame({"episode": np.arange(len(reward_history)),
