@@ -55,15 +55,14 @@ class Agent(object):
         discounted_rewards = discount_rewards(rewards, self.gamma)
 
         # Task 1c
-        # mean_discounted_rewards = torch.mean(discounted_rewards)
-        # std_discounted_rewards = torch.std(discounted_rewards)
-        # discounted_rewards = (discounted_rewards - mean_discounted_rewards) / std_discounted_rewards
-
+        discounted_rewards -= torch.mean(discounted_rewards)
+        discounted_rewards /= torch.std(discounted_rewards)
+        
         # DONE: Compute the optimization term (T1)
         # task 1a
-        # baseline = 0
+        baseline = 0
         # task 1b
-        baseline = 20
+        # baseline = 20
 
         weighted_probs = -action_probs * (discounted_rewards - baseline)
 
