@@ -61,9 +61,9 @@ class Agent(object):
 
         # DONE: Compute the optimization term (T1)
         # task 1a
-        baseline = 0
+        # baseline = 0
         # task 1b
-        # baseline = 20
+        baseline = 20
 
         weighted_probs = -action_probs * (discounted_rewards - baseline)
 
