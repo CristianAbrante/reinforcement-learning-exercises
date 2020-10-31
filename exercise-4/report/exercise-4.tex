@@ -188,18 +188,30 @@ The training performance of the algorithm with the CartPole and the LunarLander 
     \centering
    \begin{minipage}{0.48\textwidth}
      \centering
-     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-2a.png}
-     \caption{Minibatch and experience replay with handcrafted vector}
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-4a.png}
+     \caption{Deep Q-Learning for CartPole}
      \label{fig:task-2-1}
    \end{minipage}\hfill
    \begin{minipage}{0.48\textwidth}
      \centering
-     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-2b.png}
-     \caption{Minibatch and experience replay with radial basis function representation}
+     \includegraphics[width=0.9\linewidth]{exercise-4/plots/task-4b.png}
+     \caption{Deep Q-Learning for LunarLander}
      \label{fig:task-2-2}
    \end{minipage}
 \end{figure}
 
+\subsection{Question 3.1}
+\textbf{Can Q-learning be used directly in environments with continuous action spaces?}\\
+
+It could be used directly with continuous action spaces environments. But for improving the performance of it, some changes have to be done in the state vector, such as scaling it or adding handcrafted features.
+
+\subsection{Question 3.2}
+\textbf{Which steps of the algorithm would be difficult to compute in case of a continuous action space? If any, what could be done to solve them?}\\
+
+According to \cite{mnih2013playing}, the learning process (stochastic gradient descent) is inneficient to compute if raw state spaces are used, and without experience replay and batch processing. This is due to the high correlations that exists between one state input and the following one. \\
+
+For overcoming this problems is why experience replay and minibatch update are used. This techniques allow the learning agent to choose an small set actions from past experience, instead of the immediate observed actions, and thus avoid the high correlations of consecutive states.
+
 \bibliographystyle{ieeetr}
-\bibliography{template}  % Modify template with your bibliography name
+\bibliography{bibliography}  % Modify template with your bibliography name
 \end{document}
