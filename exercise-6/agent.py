@@ -73,19 +73,11 @@ class Agent(object):
         self.states, self.action_probs, self.rewards = [], [], []
         self.next_states, self.done = [], []
 
-        # TODO: Compute state values
+        # DONE: Compute state values
         state_values = torch.stack([self.policy.forward(state)[1][0] for state in states])
         next_state_values = torch.stack([self.policy.forward(state)[1][0] for state in next_states])
 
-        # # Normalize state values.
-        # state_values -= torch.mean(state_values)
-        # state_values /= torch.std(state_values)
-        #
-        # # Normalize next state values.
-        # next_state_values -= torch.mean(next_state_values)
-        # next_state_values /= torch.std(next_state_values)
-
-        # TODO: Compute critic loss (MSE)
+        # DONE: Compute critic loss (MSE)
         discounted_rewards = discount_rewards(rewards, self.gamma)
 
         # Normalize discounted rewards.
@@ -96,19 +88,19 @@ class Agent(object):
         critic_loss = mse_loss(state_values, discounted_rewards)
 
         # Advantage estimates
-        # TODO: Compute advantage estimates
+        # DONE: Compute advantage estimates
         advantages = rewards + self.gamma * next_state_values - state_values
 
-        # TODO: Calculate actor loss (very similar to PG)
+        # DONE: Calculate actor loss (very similar to PG)
         weighted_probs = -action_probs * advantages.detach()
         actor_loss = torch.mean(weighted_probs)
 
-        # TODO: Compute the gradients of loss w.r.t. network parameters
+        # DONE: Compute the gradients of loss w.r.t. network parameters
         # Or copy from Ex5
         loss = actor_loss + critic_loss
         loss.backward()
 
-        # TODO: Update network parameters using self.optimizer and zero gradients
+        # DONE: Update network parameters using self.optimizer and zero gradients
         # Or copy from Ex5
         self.optimizer.step()
         self.optimizer.zero_grad()
