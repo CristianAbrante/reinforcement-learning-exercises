@@ -2,6 +2,7 @@ import torch
 import torch.nn.functional as F
 from torch.distributions import Normal
 import numpy as np
+from utils import discount_rewards
 
 
 class Policy(torch.nn.Module):
@@ -12,8 +13,12 @@ class Policy(torch.nn.Module):
         self.hidden = 16
         self.fc1 = torch.nn.Linear(state_space, self.hidden)
         self.fc2_mean = torch.nn.Linear(self.hidden, action_space)
-        # TODO: Add another linear layer for the critic
-        self.sigma = torch.zeros(1)  # TODO: Implement learned variance (or copy from Ex5)
+
+        # DONE: Add another linear layer for the critic
+        action_value_output = 1
+        self.critic_layer = torch.nn.Linear(self.hidden, action_value_output)
+
+        self.sigma = torch.Tensor([5.0])  # DONE: Implement learned variance (or copy from Ex5)
         self.init_weights()
 
     def init_weights(self):
@@ -29,18 +34,19 @@ class Policy(torch.nn.Module):
 
         # Actor part
         action_mean = self.fc2_mean(x)
-        sigma = self.sigma  # TODO: Implement (or copy from Ex5)
+        sigma = torch.sqrt(self.sigma)  # DONE: Implement (or copy from Ex5)
 
         # Critic part
-        # TODO: Implement
+        # DONE: Implement
+        state_value = self.critic_layer(x)
 
-        # TODO: Instantiate and return a normal distribution
+        # DONE: Instantiate and return a normal distribution
         # with mean mu and std of sigma
         # Implement or copy from Ex5
+        action_dist = Normal(loc=action_mean, scale=sigma)
 
-        # TODO: Return state value in addition to the distribution
-
-        return action_dist
+        # DONE: Return state value in addition to the distribution
+        return action_dist, state_value
 
 
 class Agent(object):
@@ -58,7 +64,7 @@ class Agent(object):
     def update_policy(self, episode_number):
         # Convert buffers to Torch tensors
         action_probs = torch.stack(self.action_probs, dim=0) \
-                .to(self.train_device).squeeze(-1)
+            .to(self.train_device).squeeze(-1)
         rewards = torch.stack(self.rewards, dim=0).to(self.train_device).squeeze(-1)
         states = torch.stack(self.states, dim=0).to(self.train_device).squeeze(-1)
         next_states = torch.stack(self.next_states, dim=0).to(self.train_device).squeeze(-1)
@@ -68,33 +74,51 @@ class Agent(object):
         self.next_states, self.done = [], []
 
         # TODO: Compute state values
+        state_values = torch.stack([self.policy.forward(state)[1][0] for state in states])
+        next_state_values = torch.stack([self.policy.forward(state)[1][0] for state in next_states])
 
         # TODO: Compute critic loss (MSE)
+        discounted_rewards = discount_rewards(rewards, self.gamma)
+
+        mse_loss = torch.nn.MSELoss()
+        critic_loss = mse_loss(state_values, discounted_rewards)
 
         # Advantage estimates
         # TODO: Compute advantage estimates
+        advantages = rewards + self.gamma * next_state_values - state_values
 
         # TODO: Calculate actor loss (very similar to PG)
-
+        weighted_probs = -action_probs * advantages.detach()
+        actor_loss = torch.mean(weighted_probs)
 
         # TODO: Compute the gradients of loss w.r.t. network parameters
         # Or copy from Ex5
+        loss = actor_loss + critic_loss
+        loss.backward()
 
         # TODO: Update network parameters using self.optimizer and zero gradients
         # Or copy from Ex5
+        self.optimizer.step()
+        self.optimizer.zero_grad()
 
     def get_action(self, observation, evaluation=False):
         x = torch.from_numpy(observation).float().to(self.train_device)
 
-        # TODO: Pass state x through the policy network
+        # DONE: Pass state x through the policy network
         # Or copy from Ex5
+        aprob, _ = self.policy.forward(x)
 
-        # TODO: Return mean if evaluation, else sample from the distribution
+        # DONE: Return mean if evaluation, else sample from the distribution
         # returned by the policy
         # Or copy from Ex5
+        if evaluation:
+            action = aprob.mean
+        else:
+            action = aprob.sample()
 
-        # TODO: Calculate the log probability of the action
+        # DONE: Calculate the log probability of the action
         # Or copy from Ex5
+        act_log_prob = aprob.log_prob(action)
 
         return action, act_log_prob
 

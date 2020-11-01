@@ -70,12 +70,13 @@ def train(env_name, print_things=True, train_run_id=0, train_episodes=5000):
         plt.plot(average_reward_history)
         plt.legend(["Reward", "100-episode average"])
         plt.title("AC reward history (episodic)")
+        plt.savefig("plots/task-1.png")
         plt.show()
         print("Training finished.")
     data = pd.DataFrame({"episode": np.arange(len(reward_history)),
-                         "train_run_id": [train_run_id]*len(reward_history),
+                         "train_run_id": [train_run_id] * len(reward_history),
                          # TODO: Change algorithm name for plots, if you want
-                         "algorithm": ["Episodic AC"]*len(reward_history),
+                         "algorithm": ["Episodic AC"] * len(reward_history),
                          "reward": reward_history})
     torch.save(agent.policy.state_dict(), "model_%s_%d.mdl" % (env_name, train_run_id))
     return data
@@ -111,7 +112,7 @@ def test(env_name, episodes, params, render):
                 env.render()
             test_reward += reward
             test_len += 1
-    print("Average test reward:", test_reward/episodes, "episode length:", test_len/episodes)
+    print("Average test reward:", test_reward / episodes, "episode length:", test_len / episodes)
 
 
 if __name__ == "__main__":
@@ -134,4 +135,3 @@ if __name__ == "__main__":
         state_dict = torch.load(args.test)
         print("Testing...")
         test(args.env, 100, state_dict, args.render_test)
-
