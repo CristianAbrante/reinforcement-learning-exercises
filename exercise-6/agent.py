@@ -18,7 +18,7 @@ class Policy(torch.nn.Module):
         action_value_output = 1
         self.critic_layer = torch.nn.Linear(self.hidden, action_value_output)
 
-        self.sigma = torch.Tensor([5.0])  # DONE: Implement learned variance (or copy from Ex5)
+        self.sigma = torch.nn.Parameter(torch.Tensor([5.0]))  # DONE: Implement learned variance (or copy from Ex5)
         self.init_weights()
 
     def init_weights(self):
@@ -77,8 +77,20 @@ class Agent(object):
         state_values = torch.stack([self.policy.forward(state)[1][0] for state in states])
         next_state_values = torch.stack([self.policy.forward(state)[1][0] for state in next_states])
 
+        # # Normalize state values.
+        # state_values -= torch.mean(state_values)
+        # state_values /= torch.std(state_values)
+        #
+        # # Normalize next state values.
+        # next_state_values -= torch.mean(next_state_values)
+        # next_state_values /= torch.std(next_state_values)
+
         # TODO: Compute critic loss (MSE)
         discounted_rewards = discount_rewards(rewards, self.gamma)
+
+        # Normalize discounted rewards.
+        discounted_rewards -= torch.mean(discounted_rewards)
+        discounted_rewards /= torch.std(discounted_rewards)
 
         mse_loss = torch.nn.MSELoss()
         critic_loss = mse_loss(state_values, discounted_rewards)
