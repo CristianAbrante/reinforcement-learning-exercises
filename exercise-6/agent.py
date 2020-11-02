@@ -18,7 +18,7 @@ class Policy(torch.nn.Module):
         action_value_output = 1
         self.critic_layer = torch.nn.Linear(self.hidden, action_value_output)
 
-        self.sigma = torch.nn.Parameter(torch.Tensor([5.0]))  # DONE: Implement learned variance (or copy from Ex5)
+        self.sigma = torch.nn.Parameter(torch.Tensor([10.0]))  # DONE: Implement learned variance (or copy from Ex5)
         self.init_weights()
 
     def init_weights(self):

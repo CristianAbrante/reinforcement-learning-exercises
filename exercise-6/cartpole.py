@@ -49,8 +49,8 @@ def train(env_name, print_things=True, train_run_id=0, train_episodes=5000):
             timesteps += 1
 
             # Task 2: update agent each 50 timesteps
-            if timesteps % 50 == 0:
-                agent.update_policy(timesteps)
+            # if timesteps % 50 == 0:
+            #    agent.update_policy(timesteps)
 
         if print_things:
             print("Episode {} finished. Total reward: {:.3g} ({} timesteps)"
@@ -67,7 +67,7 @@ def train(env_name, print_things=True, train_run_id=0, train_episodes=5000):
 
         # Task 2: in this part the update is done each 50 timesteps not at the end of the episode.
         # Let the agent do its magic (update the policy)
-        # agent.update_policy(episode_number)
+        agent.update_policy(episode_number)
 
     # Training is finished - plot rewards
     if print_things:
@@ -75,7 +75,7 @@ def train(env_name, print_things=True, train_run_id=0, train_episodes=5000):
         plt.plot(average_reward_history)
         plt.legend(["Reward", "100-episode average"])
         plt.title("AC reward history (episodic)")
-        plt.savefig("plots/task-2.png")
+        plt.savefig("plots/task-1.png")
         plt.show()
         print("Training finished.")
     data = pd.DataFrame({"episode": np.arange(len(reward_history)),
